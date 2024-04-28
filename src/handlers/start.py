@@ -1,0 +1,183 @@
+from aiogram import types, Router, Dispatcher,F
+from aiogram.filters import Command
+from aiogram.types import Message,CallbackQuery
+from aiogram.filters.callback_data import CallbackData
+from aiogram.fsm.context import FSMContext
+from src.filters.is_private import IsPrivateFilter
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from api import check_phone,get_company,create_company_api,delete_company_api
+from .keyboards import contact_share_markup, buttun1,firm_buttons,order_buttuns,check_buttons
+from .states import Company,Delete_Company
+
+router = Router()
+router.message.filter(IsPrivateFilter())
+dp = Dispatcher()
+
+@router.message(Command('start'))
+async def start_handler(message: types.Message):
+    await message.answer(f"Assalomu alaykum {message.from_user.first_name}")
+    await message.answer(f"Iltimos telefon raqamingizni yuboring !",reply_markup=contact_share_markup)
+
+@router.message(Command('menu'))
+async def start_handler(message: types.Message):
+    await message.answer('Kerakli bo\'limni tanlang : ',reply_markup=buttun1)
+
+@router.message(F.contact)
+async def get_contact(message: Message):
+    phone_number = message.contact.phone_number
+    if phone_number[0]== "+":
+        phone_number = phone_number
+    else:
+        phone_number = f"+{phone_number}"
+    telegram_id = str(message.from_user.id)
+    response = check_phone(phone_number=phone_number,tg_user_id=telegram_id)
+    if response.status_code==200:
+        data = response.json()
+        first_name = data['first_name']
+        last_name = data['last_name']
+
+        await message.answer(f'Xush kelibsiz : <b>{first_name} {last_name}</b>')
+        await message.answer('Kerakli bo\'limni tanlang : ',reply_markup=buttun1)
+    else:
+        await message.answer('Kechirasiz siz bu botdan foydalana olmaysiz !')
+
+@router.message(F.text=="🏛 Firmalarim")
+async def result(message: Message):
+    await message.answer('Kerakli bo\'limni tanlang',reply_markup=firm_buttons)
+
+@router.message(F.text=="📋 Buyurtmalarim")
+async def result(message: Message):
+    await message.answer('Kerakli bo\'limni tanlang',reply_markup=order_buttuns)
+
+@router.message(F.text=="⬅️ Orqaga")
+async def result(message: Message):
+    await message.answer('Kerakli bo\'limni tanlang',reply_markup=buttun1)    
+
+
+@router.message(F.text=="🏛 Mening firmalarim")
+async def result(message: Message):
+    telegram_id = message.from_user.id
+    response = get_company(tg_user_id=telegram_id)
+    if response.status_code==200:
+        
+        data = response.json()
+        if len(data)>0:
+            for i in data:
+                await message.answer(f"🏛 Firmaning nomi : {i['name']}\n"
+                                    f"🏠 Joylashuvi : {i['address']}\n"
+                                    f"☎️ Telefon raqami : {i['phone_number']}\n"
+                                    f"📝 Stir : {i['stir']}",reply_markup=firm_buttons)
+        else:
+            await message.answer("Sizda firmalar mavjud emas : ",reply_markup=firm_buttons)
+
+
+
+@router.message(F.text=="➕ Firma qo'shish")
+async def result(message: Message,state: FSMContext):
+    await message.answer('Firmaning nomini kiriting : ')
+    await state.set_state(Company.name)
+
+
+
+@router.message(Company.name)
+async def create_company(message:Message,state:FSMContext):
+    await state.update_data(name=message.text)
+    await message.answer('Manzilni kiriting : ')
+    await state.set_state(Company.adress)
+
+@router.message(Company.adress)
+async def create_company(message:Message,state:FSMContext):
+    await state.update_data(address=message.text)
+    await message.answer('Telefon raqamini kiriting : ')
+    await state.set_state(Company.phone_number)
+
+@router.message(Company.phone_number)
+async def create_company(message:Message,state:FSMContext):
+    await state.update_data(phone_number=message.text)
+    await message.answer('Stir raqamini kiriting : ')
+    await state.set_state(Company.stir)
+
+@router.message(Company.stir)
+async def create_company(message:Message,state:FSMContext):
+    await state.update_data(stir=message.text)
+    await message.answer('Ma\'lumotlaringizni to\'griligini tekshiring: ')
+    data = await state.get_data()
+    await message.answer(f"🏛 Firmaning nomi : {data['name']}\n"
+                                f"🏠 Joylashuvi : {data['address']}\n"
+                                f"☎️ Telefon raqami : {data['phone_number']}\n"
+                                f"📝 Stir : {data['stir']}",reply_markup=check_buttons)
+    await state.set_state(Company.confirm)
+
+@router.message(Company.confirm)
+async def create_company_bot(message: Message, state:FSMContext):
+    if message.text == '✅ Ha':
+        data = await state.get_data()
+        tg_user_id = message.from_user.id
+        name = data['name']
+        address = data['address']
+        phone_number = data['phone_number']
+        stir = data['stir']
+        response = create_company_api(tg_user_id=tg_user_id,name=name,phone_number=phone_number,address=address,stir=stir)
+        if response.status_code == 200:
+            await message.answer('✅ Firma muvaffaqiyatli yaratildi',reply_markup=firm_buttons)
+        else:
+            await message.answer("😭 Xatolik yuz berdi. Qaytadan urinib ko'ring !")
+        await state.clear()
+    else:
+        await message.answer('Tanlovingiz uchun raxmat ! ',reply_markup=firm_buttons)
+        await state.clear()
+
+
+@router.message(F.text == "❌ Firma o'chirish")
+async def delete_company(message: Message, state: FSMContext):
+    telegram_id = message.from_user.id
+    response = get_company(tg_user_id=telegram_id)
+    if response.status_code == 200:
+        data = response.json()
+        buttons = []
+        for i in data:
+            buttons.append([KeyboardButton(text=i['name'])])
+        buttons.append([KeyboardButton(text='◀️ Orqaga')]) 
+        reply_markup = ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard=True)
+        await message.answer('O\'chirilishi kerak bo\'lgan kompaniyani birini tanlang', reply_markup=reply_markup)
+        await state.set_state(Delete_Company.name)
+    else:
+        await message.answer("Xatolik yuz berdi !",reply_markup=firm_buttons)
+
+
+@router.message(Delete_Company.name)
+async def company_delete(message:Message,state:FSMContext):
+    if message.text == '◀️ Orqaga':
+        await message.answer('Kerakli bo\'limni tanlang !',reply_markup=firm_buttons)
+        await state.clear()
+    else:
+        await state.update_data(name=message.text)
+        telegram_id = message.from_user.id
+        response = get_company(tg_user_id=telegram_id)
+        if response.status_code == 200:
+            data = response.json()
+            is_founded = False
+            for i in data:
+                state_data = await state.get_data()
+                name = state_data['name']
+                if name == i['name']:
+                    id = i['id']
+                    tg_user_id = telegram_id
+                    delete_company_api(id=id,tg_user_id=tg_user_id)
+                    await message.answer('O\'chirish muvaffaqiyatli bajarildi  : ',reply_markup=firm_buttons )
+                    is_founded = True
+                    break
+            if not is_founded:
+                await message.answer('Kechirasiz bunday nomdagi firma topilmadi',reply_markup=firm_buttons)
+
+
+
+
+@router.message(F.text=="◀️ Orqaga")
+async def result(message: Message):
+    await message.answer('Kerakli bo\'limni tanlang',reply_markup=firm_buttons)  
+
+
+@dp.callback_query()
+async def my_callback_foo(query: CallbackQuery):
+    print('is')

@@ -1,0 +1,38 @@
+import requests
+from environs import Env
+
+env = Env()
+env.read_env()
+BASE_URL = env.str('BASE_URL')
+
+def check_phone(phone_number:str, tg_user_id):
+    data = {
+        'phone_number': phone_number,
+        'tg_user_id': tg_user_id
+    }
+    response = requests.post(f"{BASE_URL}/auth/check-phone/", json=data)
+    return response
+
+def get_company(tg_user_id):
+    data = {
+        'tg_user_id': tg_user_id,
+    }
+    response = requests.get(f'{BASE_URL}/bot/companies?tg_user_id={tg_user_id}')
+    return response
+
+def create_company_api(tg_user_id, name, address, phone_number, stir):
+    is_active=True
+    data = {
+        'name': name,
+        'address': address,
+        'phone_number': phone_number,
+        'stir': stir,
+        'is_active': is_active,
+    }
+    response = requests.post(f'{BASE_URL}/bot/companies/?tg_user_id={tg_user_id}', json=data)
+    return response
+
+def delete_company_api(id,tg_user_id):
+    response = requests.delete(f"{BASE_URL}/bot/{id}?tg_user_id={tg_user_id}")
+    return response
+# print(delete_company_api(3,'994276762'))
