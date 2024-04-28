@@ -46,12 +46,10 @@ register_routes(dp)
 import json
 
 @app.post(WEBHOOK_PATH)
-async def bot_webhook(req:Request):
-    # print(await req.body())
-    # print(  req.query_params)
-    update = await req.json()
+async def bot_webhook(update:dict):
+
     telegram_update = types.Update(**update)    
-    await dp.feed_webhook_update(bot=bot, update=telegram_update)
+    await dp.feed_update(bot=bot, update=telegram_update)
 
 
 class MyCallback(CallbackData, prefix="my"):

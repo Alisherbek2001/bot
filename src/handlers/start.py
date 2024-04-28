@@ -270,7 +270,7 @@ async def new_orders(message: Message, state: FSMContext):
             buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
         buttons.append([KeyboardButton(text='🔙 Orqaga')]) 
         reply_markup = ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard=True)
-        await message.answer('Ko\'rish kerak bo\'lgan bog\'chani tanlang : ', reply_markup=reply_markup)
+        await message.answer('Buyurtmani tanlang  : ', reply_markup=reply_markup)
         await state.set_state(Rejected_order.id)
     else:
         await message.answer("Xatolik yuz berdi !",reply_markup=firm_buttons)
