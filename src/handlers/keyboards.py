@@ -48,3 +48,20 @@ check_buttons= ReplyKeyboardMarkup(
         ],
         resize_keyboard=True,
     )
+
+
+check_buttons_in_progress= ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text='✅ Bajarildi')],
+            [KeyboardButton(text='🔙 Orqaga')]
+        ],
+        resize_keyboard=True,
+    )
+
+confirm_buttons = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text='✅ Qabul qilish')],
+            [KeyboardButton(text='❌ Rad etish')]
+        ],
+        resize_keyboard=True,
+    )

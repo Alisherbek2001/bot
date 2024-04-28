@@ -5,9 +5,9 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from src.filters.is_private import IsPrivateFilter
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from api import check_phone,get_company,create_company_api,delete_company_api
-from .keyboards import contact_share_markup, buttun1,firm_buttons,order_buttuns,check_buttons
-from .states import Company,Delete_Company
+from api import check_phone,get_company,create_company_api,delete_company_api,get_orders_acceptet_api,get_order_id_api,get_order_accepted_api,get_order_rejected_api,get_order_inprogress_api,post_order_in_progress_api
+from .keyboards import contact_share_markup, buttun1,firm_buttons,order_buttuns,check_buttons,check_buttons_in_progress
+from .states import Company,Delete_Company,Accepted_Order,Active_Order,Rejected_order,Progress_order
 
 router = Router()
 router.message.filter(IsPrivateFilter())
@@ -178,6 +178,181 @@ async def result(message: Message):
     await message.answer('Kerakli bo\'limni tanlang',reply_markup=firm_buttons)  
 
 
-@dp.callback_query()
-async def my_callback_foo(query: CallbackQuery):
-    print('is')
+# @dp.callback_query()
+# async def my_callback_foo(query: CallbackQuery):
+#     print('is')
+
+
+@router.message(F.text == "🆕 Yangi buyurtmalar")
+async def new_orders(message: Message, state: FSMContext):
+    telegram_id = message.from_user.id
+    response = get_orders_acceptet_api(tg_user_id=telegram_id)
+    if response.status_code == 200:
+        data = response.json()
+        buttons = []
+        for i in data:
+            buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
+        buttons.append([KeyboardButton(text='🔙 Orqaga')]) 
+        reply_markup = ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard=True)
+        await message.answer('Ko\'rish kerak bo\'lgan bog\'chani tanlang : ', reply_markup=reply_markup)
+        await state.set_state(Accepted_Order.id)
+    else:
+        await message.answer("Xatolik yuz berdi !",reply_markup=order_buttuns)
+
+
+@router.message(Accepted_Order.id)
+async def company_delete(message:Message,state:FSMContext):
+    if message.text == '🔙 Orqaga':
+        await message.answer('Kerakli bo\'limni tanlang !',reply_markup=order_buttuns)
+        await state.clear()
+    else:
+        await state.update_data(id=message.text[18:])
+        telegram_id = message.from_user.id
+        state_data = await state.get_data()
+        id = state_data['id']
+        response = get_order_id_api(id=id)
+        if response.status_code == 200:
+            data = response.json()
+            # print(data)
+            malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            print(malumot)
+            for i in data['items']:
+                malumot += f"{i['product_name']} - {i['count']}\n"
+            await message.answer(malumot)
+
+
+
+@router.message(F.text == "✅ Bajarilgan buyurtmalar")
+async def new_orders(message: Message, state: FSMContext):
+    telegram_id = message.from_user.id
+    response = get_order_accepted_api(tg_user_id=telegram_id)
+    if response.status_code == 200:
+        data = response.json()
+        buttons = []
+        for i in data:
+            buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
+        buttons.append([KeyboardButton(text='🔙 Orqaga')]) 
+        reply_markup = ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard=True)
+        await message.answer('Ko\'rish kerak bo\'lgan bog\'chani tanlang : ', reply_markup=reply_markup)
+        await state.set_state(Active_Order.id)
+    else:
+        await message.answer("Xatolik yuz berdi !",reply_markup=firm_buttons)
+
+@router.message(Active_Order.id)
+async def company_delete(message:Message,state:FSMContext):
+    if message.text == '🔙 Orqaga':
+        await message.answer('Kerakli bo\'limni tanlang !',reply_markup=order_buttuns)
+        await state.clear()
+    else:
+        await state.update_data(id=message.text[18:])
+        telegram_id = message.from_user.id
+        state_data = await state.get_data()
+        id = state_data['id']
+        response = get_order_id_api(id=id)
+        if response.status_code == 200:
+            data = response.json()
+            # print(data)
+            malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            print(malumot)
+            for i in data['items']:
+                malumot += f"{i['product_name']} - {i['count']}\n"
+            await message.answer(malumot)
+
+
+@router.message(F.text == "🚫 Rad qilingan buyurtmalar")
+async def new_orders(message: Message, state: FSMContext):
+    telegram_id = message.from_user.id
+    response = get_order_rejected_api(tg_user_id=telegram_id)
+    if response.status_code == 200:
+        data = response.json()
+        buttons = []
+        for i in data:
+            buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
+        buttons.append([KeyboardButton(text='🔙 Orqaga')]) 
+        reply_markup = ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard=True)
+        await message.answer('Ko\'rish kerak bo\'lgan bog\'chani tanlang : ', reply_markup=reply_markup)
+        await state.set_state(Rejected_order.id)
+    else:
+        await message.answer("Xatolik yuz berdi !",reply_markup=firm_buttons)
+
+@router.message(Rejected_order.id)
+async def company_delete(message:Message,state:FSMContext):
+    if message.text == '🔙 Orqaga':
+        await message.answer('Kerakli bo\'limni tanlang !',reply_markup=order_buttuns)
+        await state.clear()
+    else:
+        await state.update_data(id=message.text[18:])
+        telegram_id = message.from_user.id
+        state_data = await state.get_data()
+        id = state_data['id']
+        response = get_order_id_api(id=id)
+        if response.status_code == 200:
+            data = response.json()
+            # print(data)
+            malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            print(malumot)
+            for i in data['items']:
+                malumot += f"{i['product_name']} - {i['count']}\n"
+            await message.answer(malumot)
+
+
+@router.message(F.text == "🚛 Faol buyurtmalar")
+async def new_orders(message: Message, state: FSMContext):
+    telegram_id = message.from_user.id
+    response = get_order_inprogress_api(tg_user_id=telegram_id)
+    if response.status_code == 200:
+        data = response.json()
+        if len(data)>0:
+            buttons = []
+            for i in data:
+                buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
+            buttons.append([KeyboardButton(text='🔙 Orqaga')]) 
+            reply_markup = ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard=True)
+            await message.answer('Ko\'rish kerak bo\'lgan bog\'chani tanlang : ', reply_markup=reply_markup)
+            await state.set_state(Progress_order.id)
+        else:
+            await message.answer("🙅🏻‍♂️ Sizda faol buyurtmalar yo'q",reply_markup=order_buttuns)
+    else:
+        await message.answer("Xatolik yuz berdi !",reply_markup=order_buttuns)
+
+@router.message(Progress_order.id)
+async def company_delete(message:Message,state:FSMContext):
+    if message.text == '🔙 Orqaga':
+        await message.answer('Kerakli bo\'limni tanlang !',reply_markup=order_buttuns)
+        await state.clear()
+    else:
+        await state.update_data(id=message.text[18:])
+        telegram_id = message.from_user.id
+        state_data = await state.get_data()
+        id = state_data['id']
+        response = get_order_id_api(id=id)
+        if response.status_code == 200:
+            data = response.json()
+            # print(data)
+            malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            for i in data['items']:
+                malumot += f"{i['product_name']} - {i['count']}\n"
+            await message.answer(malumot,reply_markup=check_buttons_in_progress)
+            await state.set_state(Progress_order.confirm)
+    
+@router.message(Progress_order.confirm)
+async def company_delete(message:Message,state:FSMContext):
+    if message.text == '🔙 Orqaga':
+        await message.answer('Kerakli bo\'limni tanlang !',reply_markup=order_buttuns)
+        await state.clear()
+    else:
+        telegram_id = message.from_user.id
+        state_data = await state.get_data()
+        id = state_data['id']
+        response = post_order_in_progress_api(order_id=id,tg_user_id=telegram_id)
+        if response.status_code == 200:
+            await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
+        else:
+            await message.answer("Xatolik yuz berdi",reply_markup=order_buttuns)
+            await state.clear()
+        # state_data = await state.get_data()
+        # id = state_data['id']
+
+router.message(F.text=="🔙 Orqaga")
+async def result(message: Message):
+    await message.answer('Kerakli bo\'limni tanlang',reply_markup=firm_buttons) 

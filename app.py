@@ -47,7 +47,8 @@ import json
 
 @app.post(WEBHOOK_PATH)
 async def bot_webhook(req:Request):
-    print(await req.body())
+    # print(await req.body())
+    # print(  req.query_params)
     update = await req.json()
     telegram_update = types.Update(**update)    
     await dp.feed_webhook_update(bot=bot, update=telegram_update)
