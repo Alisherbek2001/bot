@@ -73,10 +73,33 @@ def get_order_inprogress_api(tg_user_id):
     response = requests.get(f'{BASE_URL}/bot/orders/in-progress/?tg_user_id={tg_user_id}')
     return response 
 
+def get_order_pending_api(tg_user_id):
+    data = {
+        'tg_user_id': tg_user_id,
+    }
+    response = requests.get(f'{BASE_URL}/bot/orders/pending/?tg_user_id={tg_user_id}')
+    return response 
+
 def post_order_in_progress_api(order_id:str, tg_user_id):
     params = {
         'order_id': order_id,
         'tg_user_id': tg_user_id
     }
+    response = requests.post(f"{BASE_URL}/bot/orders/in-progress/",params=params)
+    return response
+
+def post_order_in_accepted_api(order_id:str, tg_user_id):
+    params = {
+        'order_id': order_id,
+        'tg_user_id': tg_user_id
+    }
     response = requests.post(f"{BASE_URL}/bot/orders/accepted/",params=params)
+    return response
+
+def post_order_rejected_api(order_id:str, tg_user_id):
+    params = {
+        'order_id': order_id,
+        'tg_user_id': tg_user_id
+    }
+    response = requests.post(f"{BASE_URL}/bot/orders/rejected/",params=params)
     return response

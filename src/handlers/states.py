@@ -12,6 +12,7 @@ class Delete_Company(StatesGroup):
 
 class Accepted_Order(StatesGroup):
     id = State()
+    confirm = State()
 
 
 class Active_Order(StatesGroup):

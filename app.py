@@ -58,12 +58,8 @@ class MyCallback(CallbackData, prefix="my"):
 
 @app.post('/send-message/')
 async def bot_webhook(msg: str,user_id:str,order_id:int):
-    builder = InlineKeyboardBuilder()
-    builder.button(
-    text="Ko'rish",
-    callback_data=MyCallback(foo="demo", bar=f"{order_id}")  # Value can be not packed to string inplace, because builder knows what to do with callback instance
-)   
-    await bot.send_message(user_id,msg,reply_markup=builder.as_markup())
+  
+    await bot.send_message(user_id,msg)
     # await state.set_state("dwadaw")
 
 

@@ -5,8 +5,10 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from src.filters.is_private import IsPrivateFilter
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from api import check_phone,get_company,create_company_api,delete_company_api,get_orders_acceptet_api,get_order_id_api,get_order_accepted_api,get_order_rejected_api,get_order_inprogress_api,post_order_in_progress_api
-from .keyboards import contact_share_markup, buttun1,firm_buttons,order_buttuns,check_buttons,check_buttons_in_progress
+from api import (check_phone,get_company,create_company_api,delete_company_api,get_orders_acceptet_api,
+                 get_order_id_api,get_order_accepted_api,get_order_rejected_api,get_order_inprogress_api,
+                 post_order_in_progress_api,post_order_in_accepted_api,get_order_pending_api,post_order_rejected_api)
+from .keyboards import contact_share_markup, buttun1,firm_buttons,order_buttuns,check_buttons,check_buttons_in_progress,confirm_buttons
 from .states import Company,Delete_Company,Accepted_Order,Active_Order,Rejected_order,Progress_order
 
 router = Router()
@@ -186,7 +188,7 @@ async def result(message: Message):
 @router.message(F.text == "🆕 Yangi buyurtmalar")
 async def new_orders(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
-    response = get_orders_acceptet_api(tg_user_id=telegram_id)
+    response = get_order_pending_api(tg_user_id=telegram_id)
     if response.status_code == 200:
         data = response.json()
         buttons = []
@@ -194,7 +196,7 @@ async def new_orders(message: Message, state: FSMContext):
             buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
         buttons.append([KeyboardButton(text='🔙 Orqaga')]) 
         reply_markup = ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard=True)
-        await message.answer('Ko\'rish kerak bo\'lgan bog\'chani tanlang : ', reply_markup=reply_markup)
+        await message.answer('Buyurtmani tanlang : ', reply_markup=reply_markup)
         await state.set_state(Accepted_Order.id)
     else:
         await message.answer("Xatolik yuz berdi !",reply_markup=order_buttuns)
@@ -218,7 +220,38 @@ async def company_delete(message:Message,state:FSMContext):
             print(malumot)
             for i in data['items']:
                 malumot += f"{i['product_name']} - {i['count']}\n"
-            await message.answer(malumot)
+            await message.answer(malumot,reply_markup=confirm_buttons)
+            await state.set_state(Accepted_Order.confirm)
+
+@router.message(Accepted_Order.confirm)
+async def company_delete(message:Message,state:FSMContext):
+    if message.text == '🔙 Orqaga':
+        await message.answer('Kerakli bo\'limni tanlang !',reply_markup=order_buttuns)
+        await state.clear()
+    elif message.text == '✅ Qabul qilish':
+        telegram_id = message.from_user.id
+        state_data = await state.get_data()
+        id = state_data['id']
+        response = post_order_in_progress_api(order_id=id,tg_user_id=telegram_id)
+        if response.status_code == 200:
+            await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
+        else:
+            await message.answer("Xatolik yuz berdi",reply_markup=order_buttuns)
+            await state.clear()
+    else:
+        telegram_id = message.from_user.id
+        state_data = await state.get_data()
+        id = state_data['id']
+        response = post_order_rejected_api(order_id=id,tg_user_id=telegram_id)
+        print(response.text)
+        if response.status_code == 200:
+            await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
+        else:
+            await message.answer("Xatolik yuz berdi",reply_markup=order_buttuns)
+            await state.clear()
+        
+
+
 
 
 
@@ -344,7 +377,7 @@ async def company_delete(message:Message,state:FSMContext):
         telegram_id = message.from_user.id
         state_data = await state.get_data()
         id = state_data['id']
-        response = post_order_in_progress_api(order_id=id,tg_user_id=telegram_id)
+        response = post_order_in_accepted_api(order_id=id,tg_user_id=telegram_id)
         if response.status_code == 200:
             await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
         else:
