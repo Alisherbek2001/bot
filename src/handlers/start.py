@@ -180,9 +180,7 @@ async def result(message: Message):
     await message.answer('Kerakli bo\'limni tanlang',reply_markup=firm_buttons)  
 
 
-# @dp.callback_query()
-# async def my_callback_foo(query: CallbackQuery):
-#     print('is')
+
 
 
 @router.message(F.text == "🆕 Yangi buyurtmalar")
@@ -215,9 +213,7 @@ async def company_delete(message:Message,state:FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            # print(data)
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            print(malumot)
             for i in data['items']:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot,reply_markup=confirm_buttons)
@@ -243,7 +239,6 @@ async def company_delete(message:Message,state:FSMContext):
         state_data = await state.get_data()
         id = state_data['id']
         response = post_order_rejected_api(order_id=id,tg_user_id=telegram_id)
-        print(response.text)
         if response.status_code == 200:
             await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
         else:
@@ -284,9 +279,7 @@ async def company_delete(message:Message,state:FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            # print(data)
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            print(malumot)
             for i in data['items']:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
@@ -321,9 +314,7 @@ async def company_delete(message:Message,state:FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            # print(data)
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            print(malumot)
             for i in data['items']:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
@@ -361,7 +352,6 @@ async def company_delete(message:Message,state:FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            # print(data)
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
             for i in data['items']:
                 malumot += f"{i['product_name']} - {i['count']}\n"
