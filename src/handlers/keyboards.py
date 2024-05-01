@@ -58,10 +58,10 @@ check_buttons_in_progress= ReplyKeyboardMarkup(
         resize_keyboard=True,
     )
 
-COMFIRM_BUTTON_NAME = "✅ Qabul qilish"
+COMFIRM_BUTTON_NAME = "Qabul qilish"
 confirm_buttons = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text=COMFIRM_BUTTON_NAME),KeyboardButton(text='❌ Rad etish')],
+            [KeyboardButton(text=COMFIRM_BUTTON_NAME),KeyboardButton(text='Rad etish')],
             [KeyboardButton(text='🔙 Orqaga')],
         ],
         resize_keyboard=True,
