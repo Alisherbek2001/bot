@@ -233,7 +233,7 @@ async def company_delete(message:Message,state:FSMContext):
             await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
         else:
             await message.answer("Xatolik yuz berdi",reply_markup=order_buttuns)
-            await state.clear()
+        await state.clear()
     else:
         telegram_id = message.from_user.id
         state_data = await state.get_data()
@@ -243,7 +243,7 @@ async def company_delete(message:Message,state:FSMContext):
             await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
         else:
             await message.answer("Xatolik yuz berdi",reply_markup=order_buttuns)
-            await state.clear()
+        await state.clear()
         
 
 
