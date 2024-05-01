@@ -307,7 +307,7 @@ async def company_delete(message: Message, state: FSMContext):
                         "company_name": data_list["company"]["name"],
                         "dmtt_name": data_list["dmtt"]["name"],
                         "dmtt_address": data_list["dmtt"]["address"],
-                        "company_phone": data_list["company"]["phone"],
+                        "company_phone": data_list["company"]["phone_number"],
                         "items": [
                             [item.get("product_name"),item.get('count')]
                             for item in data_list.get("items")
