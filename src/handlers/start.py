@@ -8,7 +8,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from api import (check_phone,get_company,create_company_api,delete_company_api,get_orders_acceptet_api,
                  get_order_id_api,get_order_accepted_api,get_order_rejected_api,get_order_inprogress_api,
                  post_order_in_progress_api,post_order_in_accepted_api,get_order_pending_api,post_order_rejected_api)
-from .keyboards import contact_share_markup, buttun1,firm_buttons,order_buttuns,check_buttons,check_buttons_in_progress,confirm_buttons
+from .keyboards import COMFIRM_BUTTON_NAME, contact_share_markup, buttun1,firm_buttons,order_buttuns,check_buttons,check_buttons_in_progress,confirm_buttons
 from .states import Company,Delete_Company,Accepted_Order,Active_Order,Rejected_order,Progress_order
 
 router = Router()
@@ -224,7 +224,7 @@ async def company_delete(message:Message,state:FSMContext):
     if message.text == '🔙 Orqaga':
         await message.answer('Kerakli bo\'limni tanlang !',reply_markup=order_buttuns)
         await state.clear()
-    elif message.text == '✅ Qabul qilish':
+    elif message.text == COMFIRM_BUTTON_NAME:
         telegram_id = message.from_user.id
         state_data = await state.get_data()
         id = state_data['id']
@@ -245,8 +245,6 @@ async def company_delete(message:Message,state:FSMContext):
             await message.answer("Xatolik yuz berdi",reply_markup=order_buttuns)
             await state.clear()
         
-
-
 
 
 
