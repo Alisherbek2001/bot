@@ -296,9 +296,10 @@ async def company_delete(message: Message, state: FSMContext):
                 f"✅ Javobingiz qabul qilindi {response.text}",
                 reply_markup=order_buttuns,
             )
+            await state.clear()
             response = get_order_id_api(id)
             if response.status_code == 200:
-                doc = DocxTemplate("temp.docx")
+                doc = DocxTemplate("src/temp.docx")
                 data_list = response.json()
                 if data_list:
 
