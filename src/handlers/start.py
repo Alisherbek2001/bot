@@ -230,7 +230,7 @@ async def company_delete(message:Message,state:FSMContext):
         id = state_data['id']
         response = post_order_in_progress_api(order_id=id,tg_user_id=telegram_id)
         if response.status_code == 200:
-            await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
+            await message.answer(f"✅ Javobingiz qabul qilindi {response.text}",reply_markup=order_buttuns)
         else:
             await message.answer("Xatolik yuz berdi",reply_markup=order_buttuns)
         await state.clear()
