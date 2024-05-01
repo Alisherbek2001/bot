@@ -360,7 +360,6 @@ async def company_delete(message:Message,state:FSMContext):
 async def company_delete(message:Message,state:FSMContext):
     if message.text == '🔙 Orqaga':
         await message.answer('Kerakli bo\'limni tanlang !',reply_markup=order_buttuns)
-        await state.clear()
     else:
         telegram_id = message.from_user.id
         state_data = await state.get_data()
@@ -369,8 +368,8 @@ async def company_delete(message:Message,state:FSMContext):
         if response.status_code == 200:
             await message.answer("✅ Jabobingiz qabul qilindi",reply_markup=order_buttuns)
         else:
-            await message.answer("Xatolik yuz berdi",reply_markup=order_buttuns)
-            await state.clear()
+            await message.answer(f"Xatolik yuz berdi {response.text}",reply_markup=order_buttuns)
+    await state.clear()
         # state_data = await state.get_data()
         # id = state_data['id']
 
