@@ -254,7 +254,7 @@ async def new_orders(message: Message, state: FSMContext):
         data = response.json()
         buttons = []
         for i in data:
-            buttons.append([KeyboardButton(text=f"📋 Buyurtma: {i['dmtt']['name']} {i['id']}")])
+            buttons.append([KeyboardButton(text=f"📋 Buyurtma N{i['id']} ({i['dmtt']['name']})")])
         buttons.append([KeyboardButton(text="🔙 Orqaga")])
         reply_markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
         await message.answer("Buyurtmani tanlang : ", reply_markup=reply_markup)
@@ -270,7 +270,7 @@ async def get_or_reject_order(message: Message, state: FSMContext):
         await state.clear()
     else:
         caption = message.text
-        id = caption.split()[-1]
+        id = caption.split("N")[1].split()[0]
         await state.update_data(id=id)
         telegram_id = message.from_user.id
         state_data = await state.get_data()
@@ -279,7 +279,7 @@ async def get_or_reject_order(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            malumot += f"📋 Buyurtma: {id}"
+            malumot += f"Buyurtma: {id}"
             for i in data["items"]:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot, reply_markup=confirm_buttons)
@@ -350,7 +350,7 @@ async def new_orders(message: Message, state: FSMContext):
         buttons = []
         if len(data) > 0:
             for i in data:
-                buttons.append([KeyboardButton(text=f"📋 Buyurtma: {i['dmtt']['name']} {i['id']}")])
+                buttons.append([KeyboardButton(text=f"📋 Buyurtma N{i['id']} ({i['dmtt']['name']})")])
             buttons.append([KeyboardButton(text="🔙 Orqaga")])
             reply_markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
             await message.answer(
@@ -370,7 +370,7 @@ async def get_order_detail(message: Message, state: FSMContext):
         await state.clear()
     else:
         caption = message.text
-        id = caption.split()[-1]
+        id = caption.split("N")[1].split()[0]
         await state.update_data(id=id)
         telegram_id = message.from_user.id
         state_data = await state.get_data()
@@ -379,7 +379,7 @@ async def get_order_detail(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            malumot += f"📋 Buyurtma: {id}\n"
+            malumot += f"Buyurtma: {id}\n"
             for i in data["items"]:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
@@ -394,7 +394,7 @@ async def get_rejected_orders_bot(message: Message, state: FSMContext):
         if len(data) > 0:
             buttons = []
             for i in data:
-                buttons.append([KeyboardButton(text=f"📋 Buyurtma: {i['dmtt']['name']} {i['id']}")])
+                buttons.append([KeyboardButton(text=f"📋 Buyurtma N{i['id']} ({i['dmtt']['name']})")])
             buttons.append([KeyboardButton(text="🔙 Orqaga")])
             reply_markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
             await message.answer("Buyurtmani tanlang  : ", reply_markup=reply_markup)
@@ -412,7 +412,7 @@ async def get_order_detail_rejected(message: Message, state: FSMContext):
         await state.clear()
     else:
         caption = message.text
-        id = caption.split()[-1]
+        id = caption.split("N")[1].split()[0]
         await state.update_data(id=id)
         telegram_id = message.from_user.id
         state_data = await state.get_data()
@@ -421,7 +421,7 @@ async def get_order_detail_rejected(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            malumot+= f"📋 Buyurtma: {id}\n"
+            malumot+= f"Buyurtma: {id}\n"
             for i in data["items"]:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
@@ -436,7 +436,7 @@ async def new_orders(message: Message, state: FSMContext):
         if len(data) > 0:
             buttons = []
             for i in data:
-                buttons.append([KeyboardButton(text=f"📋 Buyurtma: {i['dmtt']['name']} {i['id']}")])
+                buttons.append([KeyboardButton(text=f"📋 Buyurtma N{i['id']} ({i['dmtt']['name']})")])
             buttons.append([KeyboardButton(text="🔙 Orqaga")])
             reply_markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
             await message.answer(
@@ -458,7 +458,7 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
         await state.clear()
     else:
         caption = message.text
-        id = caption.split()[-1]
+        id = caption.split("N")[1].split()[0]
         await state.update_data(id=id)
         telegram_id = message.from_user.id
         state_data = await state.get_data()
@@ -467,7 +467,7 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            malumot+= f"📋 Buyurtma: {id}\n"
+            malumot+= f"Buyurtma: {id}\n"
             for i in data["items"]:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot, reply_markup=check_buttons_in_progress)
