@@ -244,6 +244,8 @@ async def result(message: Message):
     await message.answer("Kerakli bo'limni tanlang", reply_markup=firm_buttons)
 
 
+# Yangi buyurtmalarni ko'rish
+
 @router.message(F.text == "🆕 Yangi buyurtmalar")
 async def new_orders(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
@@ -252,7 +254,7 @@ async def new_orders(message: Message, state: FSMContext):
         data = response.json()
         buttons = []
         for i in data:
-            buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
+            buttons.append([KeyboardButton(text=f"📋 Buyurtma: {i['dmtt']['name']} {i['id']}")])
         buttons.append([KeyboardButton(text="🔙 Orqaga")])
         reply_markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
         await message.answer("Buyurtmani tanlang : ", reply_markup=reply_markup)
@@ -260,14 +262,16 @@ async def new_orders(message: Message, state: FSMContext):
     else:
         await message.answer("Xatolik yuz berdi !", reply_markup=order_buttuns)
 
-
+# orderni qabul qilish yoki rad etish
 @router.message(Accepted_Order.id)
-async def company_delete(message: Message, state: FSMContext):
+async def get_or_reject_order(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
         await state.clear()
     else:
-        await state.update_data(id=message.text[18:])
+        caption = message.text
+        id = caption.split()[-1]
+        await state.update_data(id=id)
         telegram_id = message.from_user.id
         state_data = await state.get_data()
         id = state_data["id"]
@@ -275,14 +279,15 @@ async def company_delete(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            malumot += f"📋 Buyurtma: {id}"
             for i in data["items"]:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot, reply_markup=confirm_buttons)
             await state.set_state(Accepted_Order.confirm)
 
-
+# orderni qabul qilish
 @router.message(Accepted_Order.confirm)
-async def company_delete(message: Message, state: FSMContext):
+async def post_order_to_in_progress(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
         await state.clear()
@@ -297,28 +302,28 @@ async def company_delete(message: Message, state: FSMContext):
                 reply_markup=order_buttuns,
             )
             await state.clear()
-            response = get_order_id_api(id)
-            if response.status_code == 200:
-                doc = DocxTemplate("src/temp.docx")
-                data_list = response.json()
-                if data_list:
+            # response = get_order_id_api(id)
+            # if response.status_code == 200:
+            #     doc = DocxTemplate("src/temp.docx")
+            #     data_list = response.json()
+            #     if data_list:
 
-                    data = {
-                        "company_name": data_list["company"]["name"],
-                        "dmtt_name": data_list["dmtt"]["name"],
-                        "dmtt_address": data_list["dmtt"]["address"],
-                        "company_phone": data_list["company"]["phone_number"],
-                        "items": [
-                            [item.get("product_name"),item.get('count')]
-                            for item in data_list.get("items")
-                        ]
-                    }
-                    file_stream = io.BytesIO()
-                    doc.render(context=data)
-                    doc.save(file_stream)
-                    file_stream.seek(0)
-                    dd = BufferedInputFile(file_stream.read(), filename="test.docx")
-                    await message.answer_document(dd)
+            #         data = {
+            #             "company_name": data_list["company"]["name"],
+            #             "dmtt_name": data_list["dmtt"]["name"],
+            #             "dmtt_address": data_list["dmtt"]["address"],
+            #             "company_phone": data_list["company"]["phone_number"],
+            #             "items": [
+            #                 [item.get("product_name"),item.get('count')]
+            #                 for item in data_list.get("items")
+            #             ]
+            #         }
+            #         file_stream = io.BytesIO()
+            #         doc.render(context=data)
+            #         doc.save(file_stream)
+            #         file_stream.seek(0)
+            #         dd = BufferedInputFile(file_stream.read(), filename="test.docx")
+            #         await message.answer_document(dd)
         else:
             await message.answer("Xatolik yuz berdi", reply_markup=order_buttuns)
         await state.clear()
@@ -329,7 +334,7 @@ async def company_delete(message: Message, state: FSMContext):
         response = post_order_rejected_api(order_id=id, tg_user_id=telegram_id)
         if response.status_code == 200:
             await message.answer(
-                "✅ Jabobingiz qabul qilindi", reply_markup=order_buttuns
+                "✅ Javobingiz qabul qilindi", reply_markup=order_buttuns
             )
         else:
             await message.answer("Xatolik yuz berdi", reply_markup=order_buttuns)
@@ -345,7 +350,7 @@ async def new_orders(message: Message, state: FSMContext):
         buttons = []
         if len(data) > 0:
             for i in data:
-                buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
+                buttons.append([KeyboardButton(text=f"📋 Buyurtma: {i['dmtt']['name']} {i['id']}")])
             buttons.append([KeyboardButton(text="🔙 Orqaga")])
             reply_markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
             await message.answer(
@@ -353,18 +358,20 @@ async def new_orders(message: Message, state: FSMContext):
             )
             await state.set_state(Active_Order.id)
         else:
-            message.answer("Sizda bajarilgan buyurtmalar mavjus emas")
+            await message.answer("Sizda bajarilgan buyurtmalar mavjus emas")
     else:
         await message.answer("Xatolik yuz berdi !", reply_markup=firm_buttons)
 
-
+# order itemslarni ko'rish
 @router.message(Active_Order.id)
-async def company_delete(message: Message, state: FSMContext):
+async def get_order_detail(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
         await state.clear()
     else:
-        await state.update_data(id=message.text[18:])
+        caption = message.text
+        id = caption.split()[-1]
+        await state.update_data(id=id)
         telegram_id = message.from_user.id
         state_data = await state.get_data()
         id = state_data["id"]
@@ -372,7 +379,7 @@ async def company_delete(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            malumot += f"{id}-buyurtma:"
+            malumot += f"📋 Buyurtma: {id}\n"
             for i in data["items"]:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
@@ -387,7 +394,7 @@ async def get_rejected_orders_bot(message: Message, state: FSMContext):
         if len(data) > 0:
             buttons = []
             for i in data:
-                buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
+                buttons.append([KeyboardButton(text=f"📋 Buyurtma: {i['dmtt']['name']} {i['id']}")])
             buttons.append([KeyboardButton(text="🔙 Orqaga")])
             reply_markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
             await message.answer("Buyurtmani tanlang  : ", reply_markup=reply_markup)
@@ -397,14 +404,16 @@ async def get_rejected_orders_bot(message: Message, state: FSMContext):
     else:
         await message.answer("Xatolik yuz berdi !", reply_markup=firm_buttons)
 
-
+# get order detail
 @router.message(Rejected_order.id)
-async def company_delete(message: Message, state: FSMContext):
+async def get_order_detail_rejected(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
         await state.clear()
     else:
-        await state.update_data(id=message.text[18:])
+        caption = message.text
+        id = caption.split()[-1]
+        await state.update_data(id=id)
         telegram_id = message.from_user.id
         state_data = await state.get_data()
         id = state_data["id"]
@@ -412,11 +421,12 @@ async def company_delete(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            malumot+= f"📋 Buyurtma: {id}\n"
             for i in data["items"]:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
 
-
+# Faol buyurtmalani button
 @router.message(F.text == "🚛 Faol buyurtmalar")
 async def new_orders(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
@@ -426,7 +436,7 @@ async def new_orders(message: Message, state: FSMContext):
         if len(data) > 0:
             buttons = []
             for i in data:
-                buttons.append([KeyboardButton(text=f"Buyurtma raqami - {i['id']}")])
+                buttons.append([KeyboardButton(text=f"📋 Buyurtma: {i['dmtt']['name']} {i['id']}")])
             buttons.append([KeyboardButton(text="🔙 Orqaga")])
             reply_markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
             await message.answer(
@@ -440,14 +450,16 @@ async def new_orders(message: Message, state: FSMContext):
     else:
         await message.answer("Xatolik yuz berdi !", reply_markup=order_buttuns)
 
-
+# faol buyurtmani detail ko'rish
 @router.message(Progress_order.id)
-async def company_delete(message: Message, state: FSMContext):
+async def get_order_detail_in_progress(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
         await state.clear()
     else:
-        await state.update_data(id=message.text[18:])
+        caption = message.text
+        id = caption.split()[-1]
+        await state.update_data(id=id)
         telegram_id = message.from_user.id
         state_data = await state.get_data()
         id = state_data["id"]
@@ -455,14 +467,15 @@ async def company_delete(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            malumot+= f"📋 Buyurtma: {id}\n"
             for i in data["items"]:
                 malumot += f"{i['product_name']} - {i['count']}\n"
             await message.answer(malumot, reply_markup=check_buttons_in_progress)
             await state.set_state(Progress_order.confirm)
 
-
+# faol buyurtmani bajarildi deb belgilash qilish
 @router.message(Progress_order.confirm)
-async def company_delete(message: Message, state: FSMContext):
+async def post_order_to_acceted(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
     else:
@@ -476,7 +489,7 @@ async def company_delete(message: Message, state: FSMContext):
             )
         else:
             await message.answer(
-                f"Xatolik yuz berdi {response.status_code} {response.text}",
+                f"Xatolik yuz berdi",
                 reply_markup=order_buttuns,
             )
     await state.clear()
