@@ -1,5 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
+
 contact_share_markup = ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text='📞  Telefon raqamni yuborish', request_contact=True)],
@@ -30,13 +31,14 @@ firm_buttons = ReplyKeyboardMarkup(
         resize_keyboard=True,
     )
 
-
+order_document = "📃 Faktura"
 
 order_buttuns = ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text='🆕 Yangi buyurtmalar')],
             [KeyboardButton(text='✅ Bajarilgan buyurtmalar'),KeyboardButton(text='🚫 Rad qilingan buyurtmalar')],
             [KeyboardButton(text='🚛 Faol buyurtmalar')],
+            [KeyboardButton(text=order_document)],
             [KeyboardButton(text='⬅️ Orqaga')],
         ],
         resize_keyboard=True,

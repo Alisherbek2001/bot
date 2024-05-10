@@ -24,3 +24,6 @@ class Rejected_order(StatesGroup):
 class Progress_order(StatesGroup):
     id = State()
     confirm = State()
+
+class Document_order(StatesGroup):
+    id = State()

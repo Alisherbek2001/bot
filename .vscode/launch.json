@@ -5,13 +5,34 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: FastAPI",
+            "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "module": "uvicorn",
+            "program": "${workspaceFolder}\\manage.py",
             "args": [
-                "app:app",
-            ]
-        }
+                "runserver"
+            ],
+            "django": true
+        },
+        {
+            "name": "Django: makemigrations",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}\\manage.py",
+            "args": [
+                "makemigrations"
+            ],
+            "django": true
+        },
+        {
+            "name": "Django: migrate",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}\\manage.py",
+            "args": [
+                "migrate"
+            ],
+            "django": true
+        },
     ]
 }
