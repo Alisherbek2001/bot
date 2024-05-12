@@ -128,3 +128,12 @@ def post_order_rejected_api(order_id: str, tg_user_id):
     }
     response = requests.post(f"{BASE_URL}/bot/orders/rejected/", params=params)
     return response
+
+
+def get_product_prices(tg_user_id):
+    params = {
+
+        'tg_user_id': tg_user_id
+    }
+    response = requests.get(f"{BASE_URL}/bot/products-prices", params=params)
+    return response

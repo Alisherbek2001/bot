@@ -1,23 +1,20 @@
-import io
 
 from aiogram import Dispatcher, F, Router, types
 from aiogram.filters import Command
-from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (CallbackQuery, KeyboardButton, Message,
                            ReplyKeyboardMarkup)
 from aiogram.types.input_file import BufferedInputFile
-from docxtpl import DocxTemplate
 
 from api import (check_phone, create_company_api, delete_company_api,
                  get_company, get_order_accepted_api, get_order_id_api,
                  get_order_inprogress_api, get_order_pending_api,
                  get_order_rejected_api, get_orders_acceptet_api,
-                 post_order_in_accepted_api, post_order_in_progress_api,
-                 post_order_rejected_api)
+                 get_product_prices, post_order_in_accepted_api,
+                 post_order_in_progress_api, post_order_rejected_api)
 from src.filters.is_private import IsPrivateFilter
 from src.handlers.keyboards import order_document
-from src.handlers.schemas import OrderResponse
+from src.handlers.schemas import OrderResponse, ProductPrices
 from src.handlers.states import Document_order
 from src.handlers.utils import create_facture
 
@@ -556,8 +553,13 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
         state_data = await state.get_data()
         id = state_data["id"]
         response = get_order_id_api(id=id)
-        if response.status_code == 200:
+        product_response = get_product_prices(
+            tg_user_id=telegram_id)
+        if response.status_code == 200 and product_response.status_code == 200:
             data = OrderResponse.model_validate(response.json())
-            buf_file = create_facture(data)
+            price_data = {item['name']: {'price': item['price'],
+                                         'measure': item['measure']} for item in product_response.json()}
+            buf_file = create_facture(id, data, price_data)
             await message.answer_document(buf_file, reply_markup=order_buttuns)
+        await message.answer("Menyu", reply_markup=order_buttuns)
         await state.clear()

@@ -1,4 +1,6 @@
+import datetime
 import io
+from typing import Dict
 
 import requests
 from aiogram.types.input_file import BufferedInputFile
@@ -10,10 +12,10 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
-from src.handlers.schemas import OrderResponse
+from src.handlers.schemas import OrderResponse, ProductPrices
 
 
-def create_facture(data: OrderResponse) -> BufferedInputFile:
+def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> BufferedInputFile:
     """
         hisob faktura yaratadi
     """
@@ -39,7 +41,8 @@ def create_facture(data: OrderResponse) -> BufferedInputFile:
     header.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     header2 = doc.add_paragraph()
-    header2.add_run("___.05.2024 sanadagi ___-sonli")
+    current_date = str(get_current_date())
+    header2.add_run(f"{current_date} sanadagi {order_id}-sonli")
     header2.alignment = WD_ALIGN_PARAGRAPH.CENTER
     header2.paragraph_format.space_after = Pt(0)
     header2.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
@@ -117,30 +120,39 @@ def create_facture(data: OrderResponse) -> BufferedInputFile:
         cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
     products_table.columns[0].width = Inches(0.42)
-    products_table.columns[1].width = Inches(2.11)
-    products_table.columns[2].width = Inches(0.89)
-    products_table.columns[3].width = Inches(0.89)
-    products_table.columns[4].width = Inches(1.08)
-    products_table.columns[5].width = Inches(0.9)
-    products_table.columns[6].width = Inches(1.36)
+    products_table.columns[1].width = Inches(2.31)
+    products_table.columns[2].width = Inches(0.95)
+    products_table.columns[3].width = Inches(0.92)
+    products_table.columns[4].width = Inches(0.98)
+    products_table.columns[5].width = Inches(0.89)
+    products_table.columns[6].width = Inches(1.38)
 
     # Заполнение таблицы данными
     i = 0
+    total_summ = 0
     for item in data.items:
+        price_item = prices.get(item.product_name)
+        if not price_item:
+            price_item = {
+                "measure": "kg",
+                "price": 0
+            }
         i += 1
         row_cells = products_table.add_row().cells
         row_cells[0].text = str(i)
         row_cells[1].text = item.product_name  # Примерное название
-        row_cells[2].text = "kg"
+        row_cells[2].text = price_item.get('measure')
         row_cells[3].text = str(item.count)  # Примерное количество
-        row_cells[4].text = "50000"
+        row_cells[4].text = str(price_item.get('price'))
         row_cells[5].text = "QQS siz"
-        row_cells[6].text = "100000"
+        summa = item.count*int(price_item.get('price'))
+        row_cells[6].text = str(summa)
+        total_summ += summa
 
         row_cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         row_cells[2].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-        row_cells[4].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        row_cells[4].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         row_cells[5].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         row_cells[6].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -155,7 +167,7 @@ def create_facture(data: OrderResponse) -> BufferedInputFile:
     # summary
     header = doc.add_paragraph()
     run = header.add_run(
-        "Jami yetkazib berilgan mahsulotlarning umumiy qiymati - ________________ so'm"
+        f"Jami yetkazib berilgan mahsulotlarning umumiy qiymati - {total_summ} so'm"
     )
     header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
@@ -164,11 +176,24 @@ def create_facture(data: OrderResponse) -> BufferedInputFile:
 
     table.cell(0, 0).text = "Yetkazib beruvchi:"
     table.cell(0, 1).text = "Qabul qiluvchi:"
-    table.cell(1, 0).text = data.company.name
-    table.cell(1, 1).text = "______________________         ______"
+    table.cell(1, 0).text = "M. Abdubannobov"
+    # dmtt  zavhoz nomi
+    table.cell(
+        1, 1).text = f"{data.dmtt.user.first_name} {data.dmtt.user.last_name}"
 
     file_stream = io.BytesIO()
     doc.save(file_stream)
     file_stream.seek(0)
     dd = BufferedInputFile(file_stream.read(), filename="test.docx")
     return dd
+
+
+def get_current_date():
+    # Get the current date
+    current_date = datetime.date.today()
+
+    # Format the date
+    formatted_date = current_date.strftime("%d.%m.%Y")
+
+    # Print the formatted date
+    return formatted_date

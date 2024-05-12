@@ -7,11 +7,9 @@ from pydantic import BaseModel
 class UserInfo(BaseModel):
     first_name: str
     last_name: str
-    phone_number: Optional[str] 
-    username: Optional[str] 
+    phone_number: Optional[str]
+    username: Optional[str]
     district: Optional[str]
-
-
 
 
 class OrderItemInfo(BaseModel):
@@ -25,7 +23,7 @@ class OrderItemInfo(BaseModel):
 class DmttInfo(BaseModel):
     name: str
     user_id: int
-    user:Optional[UserInfo]
+    user: Optional[UserInfo]
     address: str
     stir: str
     child_count: int = 0
@@ -53,3 +51,8 @@ class OrderResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ProductPrices(BaseModel):
+    name: str
+    price: int
