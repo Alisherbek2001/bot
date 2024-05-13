@@ -103,6 +103,13 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
     # Добавление таблицы с товарами
     products_table = doc.add_table(rows=1, cols=7)
     products_table.style = "Table Grid"
+    products_table.columns[0].width = Inches(0.42)
+    products_table.columns[1].width = Inches(2.31)
+    products_table.columns[2].width = Inches(0.95)
+    products_table.columns[3].width = Inches(0.92)
+    products_table.columns[4].width = Inches(0.98)
+    products_table.columns[5].width = Inches(0.89)
+    products_table.columns[6].width = Inches(1.38)
     headers = [
         "T/r",
         "Mahsulot nomi",
@@ -118,14 +125,6 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
         cell.paragraphs[0].runs[0].font.bold = True  # Sarlavhani qalin qilish
         cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-
-    products_table.columns[0].width = Inches(0.42)
-    products_table.columns[1].width = Inches(2.31)
-    products_table.columns[2].width = Inches(0.95)
-    products_table.columns[3].width = Inches(0.92)
-    products_table.columns[4].width = Inches(0.98)
-    products_table.columns[5].width = Inches(0.89)
-    products_table.columns[6].width = Inches(1.38)
 
     # Заполнение таблицы данными
     i = 0
