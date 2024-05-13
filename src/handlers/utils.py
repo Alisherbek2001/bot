@@ -10,7 +10,7 @@ from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Inches, Pt
+from docx.shared import Cm, Inches, Pt
 
 from src.handlers.schemas import OrderResponse, ProductPrices
 
@@ -130,13 +130,26 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
     # Добавление таблицы с товарами
     products_table = doc.add_table(rows=1, cols=7)
     products_table.style = "Table Grid"
-    products_table.columns[0].width = Inches(0.42)
-    products_table.columns[1].width = Inches(2.31)
-    products_table.columns[2].width = Inches(0.95)
-    products_table.columns[3].width = Inches(0.92)
-    products_table.columns[4].width = Inches(0.98)
-    products_table.columns[5].width = Inches(0.89)
-    products_table.columns[6].width = Inches(1.38)
+
+    # products_table.cell(0, 0).width = Inches(0.21)
+    # # products_table.columns[0].width = Inches(0.21)
+    # products_table.columns[1].width = Inches(2.31)
+    # products_table.columns[2].width = Inches(0.95)
+    # products_table.columns[3].width = Inches(0.92)
+    # products_table.columns[4].width = Inches(0.98)
+    # products_table.columns[5].width = Inches(0.89)
+    # products_table.columns[6].width = Inches(1.38)
+
+    columns_width = {
+        0: 0.42,
+        1: 2.31,
+        2: 0.95,
+        3: 0.92,
+        4: 0.98,
+        5: 0.89,
+        6: 1.38
+    }
+
     headers = [
         "T/r",
         "Mahsulot nomi",
@@ -186,7 +199,11 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
             cell.paragraphs[0].paragraph_format.space_after = Pt(3)
             cell.paragraphs[0].paragraph_format.space_before = Pt(3)
 
-        # ------------------------
+    # set size
+    for column_idx in range(len(products_table.columns)):
+        for j, cell in enumerate(products_table.columns[column_idx].cells):
+            cell.width = Inches(columns_width[column_idx])
+    # ------------------------
 
     doc.add_paragraph()
 
@@ -207,6 +224,7 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
     table.cell(
         1, 1).text = f"{data.dmtt.user.first_name} {data.dmtt.user.last_name}"
 
+    # doc.save("doc.docx")
     file_stream = io.BytesIO()
     doc.save(file_stream)
     file_stream.seek(0)
