@@ -15,6 +15,32 @@ from docx.shared import Inches, Pt
 from src.handlers.schemas import OrderResponse, ProductPrices
 
 
+def format_stir(phone_number):
+    formatted_number = ' '.join([phone_number[i:i+3]
+                                 for i in range(0, len(phone_number), 3)])
+    return formatted_number
+
+
+def format_phone(phone_number: str):
+    if "+" in phone_number:
+        phone_number = phone_number.replace('+', '')
+    formatted_number = f"+{phone_number[0:3]} ({phone_number[3:5]}) {phone_number[5:8]}-{phone_number[8:10]}-{phone_number[10:12]}"
+    return formatted_number
+
+
+def format_stir(phone_number):
+    formatted_number = ' '.join([phone_number[i:i+3]
+                                 for i in range(0, len(phone_number), 3)])
+    return formatted_number
+
+
+def format_phone(phone_number: str):
+    if "+" in phone_number:
+        phone_number = phone_number.replace('+', '')
+    formatted_number = f"+{phone_number[0:3]} ({phone_number[3:5]}) {phone_number[5:8]}-{phone_number[8:10]}-{phone_number[10:12]}"
+    return formatted_number
+
+
 def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> BufferedInputFile:
     """
         hisob faktura yaratadi
@@ -66,16 +92,17 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
 
     yuridik_data = [
         [
-            {"Yetkazib beruvchi:": data.company.name},
-            {"Qabul qiluvchi:": data.dmtt.name},
+            {"Yetkazib beruvchi: ": data.company.name},
+            {"Qabul qiluvchi: ": data.dmtt.name},
         ],
         [
-            {"Manzil:": data.company.address},
-            {"Manzil:": data.dmtt.address},
+            {"Manzil: ": data.company.address},
+            {"Manzil: ": data.dmtt.address},
         ],
-        [{"Tel:": data.company.phone_number},
-         {"Tel:": data.dmtt.user.phone_number}],
-        [{"STIR:": data.company.stir}, {"STIR:": data.dmtt.stir}],
+        [{"Tel: ": format_phone(data.company.phone_number)},
+         {"Tel: ": format_phone(data.dmtt.user.phone_number)}],
+        [{"STIR: ": format_stir(data.company.stir)}, {
+            "STIR: ": format_stir(data.dmtt.stir)}],
     ]
 
     table = doc.add_table(rows=4, cols=2)
