@@ -28,9 +28,20 @@ def format_phone(phone_number: str):
     return formatted_number
 
 
-def format_stir(phone_number):
-    formatted_number = ' '.join([phone_number[i:i+3]
-                                 for i in range(0, len(phone_number), 3)])
+def format_number(number):
+    """
+    Formats the given number for human readability with space separator.
+
+    Args:
+        number (int or float): The number to format.
+
+    Returns:
+        str: The formatted number.
+    """
+    formatted_number = f"{number:,}".replace(',', ' ')
+    part = formatted_number.split('.')
+    if len(part) == 2 and part[1] == '0':
+        return part[0]
     return formatted_number
 
 
@@ -181,11 +192,11 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
         row_cells[0].text = str(i)
         row_cells[1].text = item.product_name  # Примерное название
         row_cells[2].text = price_item.get('measure')
-        row_cells[3].text = str(item.count)  # Примерное количество
-        row_cells[4].text = str(price_item.get('price'))
+        row_cells[3].text = format_number(item.count)  # Примерное количество
+        row_cells[4].text = format_number(price_item.get('price'))
         row_cells[5].text = "QQS siz"
         summa = item.count*int(price_item.get('price'))
-        row_cells[6].text = str(summa)
+        row_cells[6].text = format_number(summa)
         total_summ += summa
 
         row_cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -210,10 +221,10 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
     # summary
     header = doc.add_paragraph()
     run = header.add_run(
-        f"Jami yetkazib berilgan mahsulotlarning umumiy qiymati - {total_summ} so'm"
+        f"Jami yetkazib berilgan mahsulotlarning umumiy qiymati - {format_number(total_summ)} so'm"
     )
     header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    space = doc.add_paragraph()
+    # space = doc.add_paragraph()
 
     table = doc.add_table(rows=2, cols=2)
 
@@ -224,9 +235,7 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
     table.cell(
         1, 1).text = f"{data.dmtt.user.first_name} {data.dmtt.user.last_name}"
 
-    count_current = len(doc.sections)
-    new_count = count_current + 1
-    doc.save("doc.docx")
+    # doc.save("doc.docx")
     file_stream = io.BytesIO()
     doc.save(file_stream)
     file_stream.seek(0)
