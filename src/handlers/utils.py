@@ -239,7 +239,8 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
     file_stream = io.BytesIO()
     doc.save(file_stream)
     file_stream.seek(0)
-    dd = BufferedInputFile(file_stream.read(), filename="test.docx")
+    dd = BufferedInputFile(
+        file_stream.read(), filename=f"№{order_id} ({data.dmtt.name}).docx")
     return dd
 
 
