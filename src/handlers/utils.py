@@ -213,8 +213,8 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
         f"Jami yetkazib berilgan mahsulotlarning umumiy qiymati - {total_summ} so'm"
     )
     header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    space = doc.add_paragraph()
 
-    # footer table
     table = doc.add_table(rows=2, cols=2)
 
     table.cell(0, 0).text = "Yetkazib beruvchi:"
@@ -224,12 +224,18 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
     table.cell(
         1, 1).text = f"{data.dmtt.user.first_name} {data.dmtt.user.last_name}"
 
-    # doc.save("doc.docx")
+    count_current = len(doc.sections)
+    new_count = count_current + 1
+    doc.save("doc.docx")
     file_stream = io.BytesIO()
     doc.save(file_stream)
     file_stream.seek(0)
     dd = BufferedInputFile(file_stream.read(), filename="test.docx")
     return dd
+
+
+def get_page_count(doc):
+    return
 
 
 def get_current_date():
