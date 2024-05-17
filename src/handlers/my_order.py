@@ -1,21 +1,22 @@
 from aiogram import Dispatcher, F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import (KeyboardButton, Message,
-                           ReplyKeyboardMarkup)
-from src.filters.is_private import IsPrivateFilter
+from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
 
+from api import (get_order_accepted_api, get_order_id_api,
+                 get_order_inprogress_api, get_order_pending_api,
+                 get_order_rejected_api, get_product_prices,
+                 post_order_in_accepted_api, post_order_in_progress_api,
+                 post_order_rejected_api)
+from src.filters.is_private import IsPrivateFilter
 from src.handlers.keyboards import order_document
 from src.handlers.schemas import OrderResponse
 from src.handlers.states import Document_order
 from src.handlers.utils import create_facture
-from api import (get_order_accepted_api, get_order_id_api,
-                 get_order_inprogress_api, get_order_pending_api,
-                 get_order_rejected_api,
-                 get_product_prices, post_order_in_accepted_api,
-                 post_order_in_progress_api, post_order_rejected_api)
-from .keyboards import (COMFIRM_BUTTON_NAME, check_buttons_in_progress, confirm_buttons,
-                        firm_buttons, order_buttuns)
-from .states import (Accepted_Order, Active_Order, Progress_order, Rejected_order)
+
+from .keyboards import (COMFIRM_BUTTON_NAME, check_buttons_in_progress,
+                        confirm_buttons, firm_buttons, order_buttuns)
+from .states import (Accepted_Order, Active_Order, Progress_order,
+                     Rejected_order)
 
 router = Router()
 router.message.filter(IsPrivateFilter())
@@ -286,11 +287,6 @@ async def post_order_to_acceted(message: Message, state: FSMContext):
     # id = state_data['id']
 
 
-@router.message(F.text == "🔙 Orqaga")
-async def result(message: Message):
-    await message.answer("Kerakli bo'limni tanlang", reply_markup=firm_buttons)
-
-
 @router.message(F.text == order_document)
 async def new_orders(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
@@ -305,10 +301,11 @@ async def new_orders(message: Message, state: FSMContext):
             buttons.append([KeyboardButton(text="🔙 Orqaga")])
             reply_markup = ReplyKeyboardMarkup(
                 keyboard=buttons, resize_keyboard=True)
+            await state.set_state(Document_order.id)
             await message.answer(
                 "Ko'rish kerak bo'lgan buyurtmani tanlang : ", reply_markup=reply_markup
             )
-            await state.set_state(Document_order.id)
+
         else:
             await message.answer(
                 "🙅🏻‍♂️ Sizda faol buyurtmalar yo'q", reply_markup=order_buttuns
@@ -318,7 +315,7 @@ async def new_orders(message: Message, state: FSMContext):
 
 
 @router.message(Document_order.id)
-async def get_order_detail_in_progress(message: Message, state: FSMContext):
+async def get_order_document_in_progress(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
         await state.clear()
@@ -340,3 +337,9 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
             await message.answer_document(buf_file, reply_markup=order_buttuns)
         await message.answer("Menyu", reply_markup=order_buttuns)
         await state.clear()
+
+
+# by oxirida bo'lishi hsart
+@router.message(F.text == "🔙 Orqaga")
+async def result(message: Message):
+    await message.answer("Kerakli bo'limni tanlang", reply_markup=firm_buttons)

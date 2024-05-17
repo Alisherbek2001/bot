@@ -1,16 +1,17 @@
 from aiogram import Dispatcher, F, Router
-from src.filters.is_private import IsPrivateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import (KeyboardButton, Message,
-                           ReplyKeyboardMarkup)
-from api import (create_company_api, delete_company_api,
-                 get_company)
-from .keyboards import (check_buttons, firm_buttons, buttun1)
-from .states import (Company, Delete_Company)
+from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
+
+from api import create_company_api, delete_company_api, get_company
+from src.filters.is_private import IsPrivateFilter
+
+from .keyboards import buttun1, check_buttons, firm_buttons
+from .states import Company, Delete_Company
 
 router = Router()
 router.message.filter(IsPrivateFilter())
 dp = Dispatcher()
+
 
 @router.message(F.text == "🏛 Firmalarim")
 async def result(message: Message):
@@ -32,7 +33,6 @@ async def result(message: Message):
     telegram_id = message.from_user.id
     response = get_company(tg_user_id=telegram_id)
     if response.status_code == 200:
-
         data = response.json()
         if len(data) > 0:
             for i in data:
@@ -47,6 +47,9 @@ async def result(message: Message):
             await message.answer(
                 "Sizda firmalar mavjud emas : ", reply_markup=firm_buttons
             )
+    else:
+        await message.answer(f"Qanaqadur hatolik ro'y berdi {response.json()}")
+
 
 @router.message(F.text == "➕ Firma qo'shish")
 async def result(message: Message, state: FSMContext):
@@ -117,6 +120,7 @@ async def create_company_bot(message: Message, state: FSMContext):
         await message.answer("Tanlovingiz uchun raxmat ! ", reply_markup=firm_buttons)
         await state.clear()
 
+
 @router.message(F.text == "❌ Firma o'chirish")
 async def delete_company(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
@@ -136,6 +140,7 @@ async def delete_company(message: Message, state: FSMContext):
         await state.set_state(Delete_Company.name)
     else:
         await message.answer("Xatolik yuz berdi !", reply_markup=firm_buttons)
+
 
 @router.message(Delete_Company.name)
 async def company_delete(message: Message, state: FSMContext):

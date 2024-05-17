@@ -1,19 +1,23 @@
+import asyncio
+import json
+from aiogram.fsm.context import FSMContext
 import logging
 from contextlib import asynccontextmanager
-from src.handlers.keyboards import view_button
-import uvicorn
-from aiogram.types import Message,CallbackQuery
-from aiogram import types, Router, Dispatcher,F
 
-from aiogram import Bot, Dispatcher, types
-from aiogram.fsm.storage.memory import MemoryStorage
+import uvicorn
+from aiogram import Bot, Dispatcher, F, Router, types
 from aiogram.filters.callback_data import CallbackData
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import CallbackQuery, Message
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from src import load_config
 from src.handlers import register_routes
+from src.handlers.keyboards import view_button
 from src.middlewares.config import ConfigMiddleware
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 router = Router()
-from aiogram.fsm.context import FSMContext
+
 logger = logging.getLogger(__name__)
 
 config = load_config(".env")
@@ -30,14 +34,11 @@ dp.update.middleware(ConfigMiddleware(config))
 # Register routes
 register_routes(dp)
 
-import json
 
 async def main():
     await bot.delete_webhook()
     await dp.start_polling(bot)
-    
 
-import asyncio 
 
 if __name__ == "__main__":
     logging.basicConfig(
