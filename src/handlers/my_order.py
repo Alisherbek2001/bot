@@ -171,6 +171,7 @@ async def get_order_detail(message: Message, state: FSMContext):
             malumot += f"Buyurtma: {id}\n"
             index = 0
             for i in data["items"]:
+                index+=1
                 malumot += f"{index}.{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
 
