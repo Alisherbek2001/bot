@@ -62,10 +62,13 @@ async def get_or_reject_order(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
-            malumot += f"Buyurtma: {id}"
+            malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
+            malumot += f"Buyurtma: {id}\n"
+            index = 0
             for i in data["items"]:
-                malumot += f"{i['product_name']} - {i['count']}\n"
+                index += 1
+                malumot += f"{index}.{i['product_name']} - {i['count']}\n"
+
             await message.answer(malumot, reply_markup=confirm_buttons)
             await state.set_state(Accepted_Order.confirm)
 
@@ -171,7 +174,7 @@ async def get_order_detail(message: Message, state: FSMContext):
             malumot += f"Buyurtma: {id}\n"
             index = 0
             for i in data["items"]:
-                index+=1
+                index += 1
                 malumot += f"{index}.{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
 
@@ -216,6 +219,7 @@ async def get_order_detail_rejected(message: Message, state: FSMContext):
             malumot += f"Buyurtma: {id}\n"
             index = 0
             for i in data["items"]:
+                index += 1
                 malumot += f"{index}.{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
 
@@ -261,10 +265,13 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
             malumot += f"Buyurtma: {id}\n"
+            index = 0
             for i in data["items"]:
-                malumot += f"{i['product_name']} - {i['count']}\n"
+                index += 1
+                malumot += f"{index}.{i['product_name']} - {i['count']}\n"
+
             await message.answer(malumot, reply_markup=check_buttons_in_progress)
             await state.set_state(Progress_order.confirm)
 
