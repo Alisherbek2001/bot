@@ -152,6 +152,9 @@ async def new_orders(message: Message, state: FSMContext):
 
 @router.message(Active_Order.id)
 async def get_order_detail(message: Message, state: FSMContext):
+    """
+        detail ko'rish 
+    """
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
         await state.clear()
@@ -164,10 +167,11 @@ async def get_order_detail(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
             malumot += f"Buyurtma: {id}\n"
+            index = 0
             for i in data["items"]:
-                malumot += f"{i['product_name']} - {i['count']}\n"
+                malumot += f"{index}.{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
 
 
@@ -207,10 +211,11 @@ async def get_order_detail_rejected(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = f"🏛 Bog'cha {data['dmtt']['name']}\n"
+            malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
             malumot += f"Buyurtma: {id}\n"
+            index = 0
             for i in data["items"]:
-                malumot += f"{i['product_name']} - {i['count']}\n"
+                malumot += f"{index}.{i['product_name']} - {i['count']}\n"
             await message.answer(malumot)
 
 
