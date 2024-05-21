@@ -62,7 +62,7 @@ async def get_or_reject_order(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = get_order_as_list(data)
+            malumot = get_order_as_list(data, id)
             await message.answer(malumot, reply_markup=confirm_buttons)
             await state.set_state(Accepted_Order.confirm)
 
@@ -164,7 +164,7 @@ async def get_order_detail(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = get_order_as_list(data)
+            malumot = get_order_as_list(data, id)
             await message.answer(malumot)
 
 
@@ -204,7 +204,7 @@ async def get_order_detail_rejected(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = get_order_as_list(data)
+            malumot = get_order_as_list(data, id)
             await message.answer(malumot)
 
 
@@ -249,7 +249,7 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = get_order_as_list(data)
+            malumot = get_order_as_list(data, id)
             await message.answer(malumot, reply_markup=check_buttons_in_progress)
             await state.set_state(Progress_order.confirm)
 

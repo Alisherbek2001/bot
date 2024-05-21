@@ -248,11 +248,11 @@ def get_current_date():
     return formatted_date
 
 
-def get_order_as_list(data):
+def get_order_as_list(data, order_id):
     """
         retun order as list
     """
-    malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
+    malumot = f"{data['dmtt']['name']} | Buyurtma - {order_id}\n"
     index = 0
     for i in data["items"]:
         index += 1
