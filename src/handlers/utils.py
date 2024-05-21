@@ -21,13 +21,6 @@ def format_stir(phone_number):
     return formatted_number
 
 
-def format_phone(phone_number: str):
-    if "+" in phone_number:
-        phone_number = phone_number.replace('+', '')
-    formatted_number = f"+{phone_number[0:3]} ({phone_number[3:5]}) {phone_number[5:8]}-{phone_number[8:10]}-{phone_number[10:12]}"
-    return formatted_number
-
-
 def format_number(number):
     """
     Formats the given number for human readability with space separator.
@@ -244,10 +237,6 @@ def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> Buffered
     return dd
 
 
-def get_page_count(doc):
-    return
-
-
 def get_current_date():
     # Get the current date
     current_date = datetime.date.today()
@@ -257,3 +246,16 @@ def get_current_date():
 
     # Print the formatted date
     return formatted_date
+
+
+def get_order_as_list(data):
+    """
+        retun order as list
+    """
+    malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
+    index = 0
+    for i in data["items"]:
+        index += 1
+        count = format_number(i['count'])
+        malumot += f"{index}.{i['product_name']} - {count}\n"
+    return malumot

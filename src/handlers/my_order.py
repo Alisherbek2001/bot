@@ -11,7 +11,7 @@ from src.filters.is_private import IsPrivateFilter
 from src.handlers.keyboards import order_document
 from src.handlers.schemas import OrderResponse
 from src.handlers.states import Document_order
-from src.handlers.utils import create_facture
+from src.handlers.utils import create_facture, get_order_as_list
 
 from .keyboards import (COMFIRM_BUTTON_NAME, check_buttons_in_progress,
                         confirm_buttons, firm_buttons, order_buttuns)
@@ -62,13 +62,7 @@ async def get_or_reject_order(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
-            malumot += f"Buyurtma: {id}\n"
-            index = 0
-            for i in data["items"]:
-                index += 1
-                malumot += f"{index}.{i['product_name']} - {i['count']}\n"
-
+            malumot = get_order_as_list(data)
             await message.answer(malumot, reply_markup=confirm_buttons)
             await state.set_state(Accepted_Order.confirm)
 
@@ -170,12 +164,7 @@ async def get_order_detail(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
-            malumot += f"Buyurtma: {id}\n"
-            index = 0
-            for i in data["items"]:
-                index += 1
-                malumot += f"{index}.{i['product_name']} - {i['count']}\n"
+            malumot = get_order_as_list(data)
             await message.answer(malumot)
 
 
@@ -215,12 +204,7 @@ async def get_order_detail_rejected(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
-            malumot += f"Buyurtma: {id}\n"
-            index = 0
-            for i in data["items"]:
-                index += 1
-                malumot += f"{index}.{i['product_name']} - {i['count']}\n"
+            malumot = get_order_as_list(data)
             await message.answer(malumot)
 
 
@@ -265,13 +249,7 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
         response = get_order_id_api(id=id)
         if response.status_code == 200:
             data = response.json()
-            malumot = f"{data['dmtt']['name']} | Buyurtma - {id}\n"
-            malumot += f"Buyurtma: {id}\n"
-            index = 0
-            for i in data["items"]:
-                index += 1
-                malumot += f"{index}.{i['product_name']} - {i['count']}\n"
-
+            malumot = get_order_as_list(data)
             await message.answer(malumot, reply_markup=check_buttons_in_progress)
             await state.set_state(Progress_order.confirm)
 
@@ -352,7 +330,7 @@ async def get_order_document_in_progress(message: Message, state: FSMContext):
         await state.clear()
 
 
-# by oxirida bo'lishi hsart
+# by oxirida bo'lishi shart
 @router.message(F.text == "🔙 Orqaga")
 async def result(message: Message):
     await message.answer("Kerakli bo'limni tanlang", reply_markup=firm_buttons)
