@@ -9,7 +9,7 @@ from api import (get_order_accepted_api, get_order_id_api,
                  post_order_in_accepted_api, post_order_in_progress_api,
                  post_order_rejected_api)
 from src.filters.is_private import IsPrivateFilter
-from src.handlers.keyboards import order_document
+from src.handlers.keyboards import faktura_document, order_document
 from src.handlers.schemas import OrderResponse
 from src.handlers.utils import create_facture, get_order_as_list
 from src.services import OrderClient
@@ -249,7 +249,7 @@ async def get_document_orders(message: Message, state: FSMContext):
         )
 
 
-@router.message(F.text == order_document)
+@router.message(F.text == faktura_document)
 async def get_document_orders(message: Message, state: FSMContext):
     """
         faktura yaratish
