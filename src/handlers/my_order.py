@@ -1,4 +1,5 @@
 from aiogram import Dispatcher, F, Router
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
 
@@ -63,7 +64,7 @@ async def get_or_reject_order(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = get_order_as_list(data, id)
-            await message.answer(malumot, reply_markup=confirm_buttons)
+            await message.answer(malumot, reply_markup=confirm_buttons, parse_mode=ParseMode.HTML)
             await state.set_state(Accepted_Order.confirm)
 
 
@@ -165,7 +166,7 @@ async def get_order_detail(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = get_order_as_list(data, id)
-            await message.answer(malumot)
+            await message.answer(malumot, parse_mode=ParseMode.HTML)
 
 
 @router.message(F.text == "🚫 Rad qilingan buyurtmalar")
@@ -205,7 +206,7 @@ async def get_order_detail_rejected(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = get_order_as_list(data, id)
-            await message.answer(malumot)
+            await message.answer(malumot, parse_mode=ParseMode.HTML)
 
 
 @router.message(F.text == "🚛 Faol buyurtmalar")
@@ -250,7 +251,7 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
         if response.status_code == 200:
             data = response.json()
             malumot = get_order_as_list(data, id)
-            await message.answer(malumot, reply_markup=check_buttons_in_progress)
+            await message.answer(malumot, reply_markup=check_buttons_in_progress, parse_mode=ParseMode.HTML)
             await state.set_state(Progress_order.confirm)
 
 
