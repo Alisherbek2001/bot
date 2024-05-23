@@ -249,7 +249,16 @@ async def get_document_orders(message: Message, state: FSMContext):
         )
 
 
+@router.message(F.text == order_document)
+async def get_document_orders(message: Message, state: FSMContext):
+    """
+        faktura yaratish
+    """
+    await message.answer("ishlab chiqish bosqichida", reply_markup=order_buttons)
+
 # by oxirida bo'lishi shart
+
+
 @router.message(F.text == "🔙 Orqaga")
 async def result(message: Message):
     await message.answer("Kerakli bo'limni tanlang", reply_markup=buttun1)
