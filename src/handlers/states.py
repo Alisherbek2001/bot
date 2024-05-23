@@ -1,4 +1,5 @@
-from aiogram.fsm.state import StatesGroup,State
+from aiogram.fsm.state import State, StatesGroup
+
 
 class Company(StatesGroup):
     name = State()
@@ -7,23 +8,28 @@ class Company(StatesGroup):
     stir = State()
     confirm = State()
 
+
 class Delete_Company(StatesGroup):
     name = State()
 
-class Accepted_Order(StatesGroup):
+
+class AcceptedOrder(StatesGroup):
     id = State()
     confirm = State()
 
 
-class Active_Order(StatesGroup):
+class ActiveOrder(StatesGroup):
     id = State()
 
-class Rejected_order(StatesGroup):
+
+class RejectedOrder(StatesGroup):
     id = State()
 
-class Progress_order(StatesGroup):
+
+class ProgressOrder(StatesGroup):
     id = State()
     confirm = State()
 
-class Document_order(StatesGroup):
+
+class DocumentOrder(StatesGroup):
     id = State()

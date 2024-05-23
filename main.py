@@ -1,15 +1,13 @@
 import asyncio
 import json
-from aiogram.fsm.context import FSMContext
 import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
 from aiogram import Bot, Dispatcher, F, Router, types
 from aiogram.filters.callback_data import CallbackData
+from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import CallbackQuery, Message
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from src import load_config
 from src.handlers import register_routes
