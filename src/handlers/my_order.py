@@ -278,7 +278,7 @@ async def get_document_orders(message: Message, state: FSMContext):
             response = order_client.get_order_by_id(order_id=order_id)
             data = OrderResponse.model_validate(response)
             buffer_file = create_facture(order_id, data, price_data)
-            await message.answer(buffer_file)
+            await message.answer_document(buffer_file)
     else:
         await message.answer(
             "🙅🏻‍♂️ Sizda faol buyurtmalar yo'q", reply_markup=order_buttuns
