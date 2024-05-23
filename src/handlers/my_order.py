@@ -13,12 +13,15 @@ from src.handlers.keyboards import order_document
 from src.handlers.schemas import OrderResponse
 from src.handlers.states import Document_order
 from src.handlers.utils import create_facture, get_order_as_list
+from src.services import OrderClient
 
-from .keyboards import (COMFIRM_BUTTON_NAME, check_buttons_in_progress,
-                        confirm_buttons, firm_buttons, order_buttuns)
+from .keyboards import (COMFIRM_BUTTON_NAME, buttun1,
+                        check_buttons_in_progress, confirm_buttons,
+                        firm_buttons, order_buttuns)
 from .states import (Accepted_Order, Active_Order, Progress_order,
                      Rejected_order)
 
+order_client = OrderClient()
 router = Router()
 router.message.filter(IsPrivateFilter())
 dp = Dispatcher()
@@ -85,28 +88,6 @@ async def post_order_to_in_progress(message: Message, state: FSMContext):
                 reply_markup=order_buttuns,
             )
             await state.clear()
-            # response = get_order_id_api(id)
-            # if response.status_code == 200:
-            #     doc = DocxTemplate("src/temp.docx")
-            #     data_list = response.json()
-            #     if data_list:
-
-            #         data = {
-            #             "company_name": data_list["company"]["name"],
-            #             "dmtt_name": data_list["dmtt"]["name"],
-            #             "dmtt_address": data_list["dmtt"]["address"],
-            #             "company_phone": data_list["company"]["phone_number"],
-            #             "items": [
-            #                 [item.get("product_name"),item.get('count')]
-            #                 for item in data_list.get("items")
-            #             ]
-            #         }
-            #         file_stream = io.BytesIO()
-            #         doc.render(context=data)
-            #         doc.save(file_stream)
-            #         file_stream.seek(0)
-            #         dd = BufferedInputFile(file_stream.read(), filename="test.docx")
-            #         await message.answer_document(dd)
         else:
             await message.answer("Xatolik yuz berdi", reply_markup=order_buttuns)
         await state.clear()
@@ -280,58 +261,31 @@ async def post_order_to_acceted(message: Message, state: FSMContext):
 
 
 @router.message(F.text == order_document)
-async def new_orders(message: Message, state: FSMContext):
+async def get_document_orders(message: Message, state: FSMContext):
+    """
+        yuk xati olish
+    """
     telegram_id = message.from_user.id
-    response = get_order_inprogress_api(tg_user_id=telegram_id)
-    if response.status_code == 200:
-        data = response.json()
-        if len(data) > 0:
-            buttons = []
-            for i in data:
-                buttons.append(
-                    [KeyboardButton(text=f"📋 Buyurtma N{i['id']} ({i['dmtt']['name']})")])
-            buttons.append([KeyboardButton(text="🔙 Orqaga")])
-            reply_markup = ReplyKeyboardMarkup(
-                keyboard=buttons, resize_keyboard=True)
-            await state.set_state(Document_order.id)
-            await message.answer(
-                "Ko'rish kerak bo'lgan buyurtmani tanlang : ", reply_markup=reply_markup
-            )
-
-        else:
-            await message.answer(
-                "🙅🏻‍♂️ Sizda faol buyurtmalar yo'q", reply_markup=order_buttuns
-            )
+    response = order_client.get_orders_in_progress(tg_user_id=telegram_id)
+    data = response
+    product_response = order_client.get_product_prices(
+        tg_user_id=telegram_id)
+    price_data = {item['name']: {'price': item['price'],
+                                 'measure': item['measure']} for item in product_response}
+    if len(data) > 0:
+        for order in data:
+            order_id = order['id']
+            response = order_client.get_order_by_id(order_id=order_id)
+            data = OrderResponse.model_validate(response)
+            buffer_file = create_facture(order_id, data, price_data)
+            await message.answer(buffer_file)
     else:
-        await message.answer("Xatolik yuz berdi !", reply_markup=order_buttuns)
-
-
-@router.message(Document_order.id)
-async def get_order_document_in_progress(message: Message, state: FSMContext):
-    if message.text == "🔙 Orqaga":
-        await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttuns)
-        await state.clear()
-    else:
-        caption = message.text
-        id = caption.split("N")[1].split()[0]
-        await state.update_data(id=id)
-        telegram_id = message.from_user.id
-        state_data = await state.get_data()
-        id = state_data["id"]
-        response = get_order_id_api(id=id)
-        product_response = get_product_prices(
-            tg_user_id=telegram_id)
-        if response.status_code == 200 and product_response.status_code == 200:
-            data = OrderResponse.model_validate(response.json())
-            price_data = {item['name']: {'price': item['price'],
-                                         'measure': item['measure']} for item in product_response.json()}
-            buf_file = create_facture(id, data, price_data)
-            await message.answer_document(buf_file, reply_markup=order_buttuns)
-        await message.answer("Menyu", reply_markup=order_buttuns)
-        await state.clear()
+        await message.answer(
+            "🙅🏻‍♂️ Sizda faol buyurtmalar yo'q", reply_markup=order_buttuns
+        )
 
 
 # by oxirida bo'lishi shart
 @router.message(F.text == "🔙 Orqaga")
 async def result(message: Message):
-    await message.answer("Kerakli bo'limni tanlang", reply_markup=firm_buttons)
+    await message.answer("Kerakli bo'limni tanlang", reply_markup=buttun1)
