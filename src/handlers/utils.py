@@ -257,5 +257,5 @@ def get_order_as_list(data, order_id):
     for i in data["items"]:
         index += 1
         count = format_number(i['count'])
-        malumot += f"{index}.{i['product_name']} - {count}\n"
+        malumot += f"{index}. {i['product_name']} - {count}\n"
     return malumot
