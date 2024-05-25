@@ -27,6 +27,14 @@ router.message.filter(IsPrivateFilter())
 dp = Dispatcher()
 
 
+def get_id_from_caption(caption: str) -> int:
+    try:
+        order_id = int(caption.split("N")[1].split()[0])
+        return order_id
+    except:
+        return None
+
+
 async def send_order_list(message: Message, state: FSMContext, order_list, next_state):
     if order_list:
         buttons = [[KeyboardButton(
@@ -62,16 +70,14 @@ async def get_or_reject_order(message: Message, state: FSMContext):
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttons)
         await state.clear()
     else:
-        caption = message.text
-        id = caption.split("N")[1].split()[0]
-        await state.update_data(id=id)
-        telegram_id = message.from_user.id
-        state_data = await state.get_data()
-        id = state_data["id"]
-        response = get_order_id_api(id=id)
+        order_id = get_id_from_caption(message.text)
+        if not order_id:
+            return await message.answer("Bosh menyu", reply_markup=order_buttons)
+        await state.update_data(id=order_id)
+        response = get_order_id_api(id=order_id)
         if response.status_code == 200:
             data = response.json()
-            malumot = get_order_as_list(data, id)
+            malumot = get_order_as_list(data, order_id)
             await message.answer(malumot, reply_markup=confirm_buttons, parse_mode=ParseMode.HTML)
             await state.set_state(AcceptedOrder.confirm)
 
@@ -130,15 +136,13 @@ async def get_order_detail(message: Message, state: FSMContext):
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttons)
         await state.clear()
     else:
-        caption = message.text
-        id = caption.split("N")[1].split()[0]
-        await state.update_data(id=id)
-        state_data = await state.get_data()
-        id = state_data["id"]
-        response = get_order_id_api(id=id)
+        order_id: int = get_id_from_caption(message.text)
+        if not order_id:
+            return await message.answer("Bosh menyu", reply_markup=order_buttons)
+        response = get_order_id_api(id=order_id)
         if response.status_code == 200:
             data = response.json()
-            malumot = get_order_as_list(data, id)
+            malumot = get_order_as_list(data, order_id)
             await message.answer(malumot, parse_mode=ParseMode.HTML)
 
 
@@ -159,15 +163,13 @@ async def get_order_detail_rejected(message: Message, state: FSMContext):
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttons)
         await state.clear()
     else:
-        caption = message.text
-        id = caption.split("N")[1].split()[0]
-        await state.update_data(id=id)
-        state_data = await state.get_data()
-        id = state_data["id"]
-        response = get_order_id_api(id=id)
+        order_id = get_id_from_caption(message.text)
+        if not order_id:
+            return await message.answer("Bosh menyu", reply_markup=order_buttons)
+        response = get_order_id_api(id=order_id)
         if response.status_code == 200:
             data = response.json()
-            malumot = get_order_as_list(data, id)
+            malumot = get_order_as_list(data, order_id)
             await message.answer(malumot, parse_mode=ParseMode.HTML)
 
 
@@ -189,16 +191,15 @@ async def get_order_detail_in_progress(message: Message, state: FSMContext):
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttons)
         await state.clear()
     else:
-        caption = message.text
-        id = caption.split("N")[1].split()[0]
-        await state.update_data(id=id)
-        telegram_id = message.from_user.id
-        state_data = await state.get_data()
-        id = state_data["id"]
-        response = get_order_id_api(id=id)
+        order_id = get_id_from_caption(message.text)
+        if not order_id:
+            return await message.answer("Bosh menyu", reply_markup=order_buttons)
+        await state.update_data(id=order_id)
+
+        response = get_order_id_api(id=order_id)
         if response.status_code == 200:
             data = response.json()
-            malumot = get_order_as_list(data, id)
+            malumot = get_order_as_list(data, order_id)
             await message.answer(malumot, reply_markup=check_buttons_in_progress, parse_mode=ParseMode.HTML)
             await state.set_state(ProgressOrder.confirm)
 
