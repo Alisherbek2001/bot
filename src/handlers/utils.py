@@ -397,10 +397,10 @@ def create_full_facture(order_id: int, data: FacturaLimitInfo, prices: Dict) -> 
         row_cells[1].text = item.name  # Примерное название
         row_cells[2].text = price_item.get('measure')
         row_cells[3].text = format_number(
-            float(item.count))  # Примерное количество
+            float(item.limit))  # Примерное количество
         row_cells[4].text = format_number(price_item.get('price'))
         row_cells[5].text = "QQS siz"
-        summa = float(item.count)*int(price_item.get('price'))
+        summa = float(item.limit)*int(price_item.get('price'))
         row_cells[6].text = format_number(summa)
         total_summ += summa
 
