@@ -56,3 +56,16 @@ class OrderResponse(BaseModel):
 class ProductPrices(BaseModel):
     name: str
     price: int
+
+
+class ItemInfo(BaseModel):
+    name: str
+    measure: str
+    limit: str
+    count: str
+
+
+class FacturaLimitInfo(BaseModel):
+    company: CompanyInfo
+    dmtt: DmttInfo
+    items: List[ItemInfo]
