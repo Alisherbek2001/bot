@@ -255,24 +255,25 @@ async def get_document_orders(message: Message):
     """
         faktura yaratish
     """
-    telegram_id = message.from_user.id
-    await message.answer('Boshlandi')
-    contracts = limit_client.get_contracts(telegram_id)
+    # telegram_id = message.from_user.id
+    # await message.answer('Boshlandi')
+    # contracts = limit_client.get_contracts(telegram_id)
 
-    product_response = order_client.get_product_prices(
-        tg_user_id=telegram_id)
-    price_data = {item['name']: {'price': item['price'],
-                                 'measure': item['measure']} for item in product_response}
+    # product_response = order_client.get_product_prices(
+    #     tg_user_id=telegram_id)
+    # price_data = {item['name']: {'price': item['price'],
+    #                              'measure': item['measure']} for item in product_response}
 
-    total = len(contracts)
-    i = 0
-    for item in contracts:
-        i += 1
-        jsondata = limit_client.get_factura_data(item.get('id'), telegram_id)
-        data = FacturaLimitInfo.model_validate(jsondata)
-        buf_file = create_full_facture(i, data, price_data)
-        await message.answer_document(buf_file, reply_markup=order_buttons, caption=f"{i}/{total}")
-    await message.answer("tugadi")
+    # total = len(contracts)
+    # i = 0
+    # for item in contracts:
+    #     i += 1
+    #     jsondata = limit_client.get_factura_data(item.get('id'), telegram_id)
+    #     data = FacturaLimitInfo.model_validate(jsondata)
+    #     buf_file = create_full_facture(i, data, price_data)
+    #     await message.answer_document(buf_file, reply_markup=order_buttons, caption=f"{i}/{total}")
+    # await message.answer("tugadi")
+    await message.answer("Bu feature vaqtincha ish faoliyatida emas")
 
 # by oxirida bo'lishi shart
 
