@@ -214,12 +214,22 @@ class OrderClient(ApiClient):
 
 
 class LimitClient(ApiClient):
-    def get_factura_data(self, tg_user_id):
+    def get_factura_data(self, contract_id, telegram_id):
         """
         Factura uchun to'liq datani olish
+
+        :param contract_id: Shartnomi raqami
+        :return: JSON javobi.
+        """
+        params = {'contract_id': contract_id, 'tg_user_id': telegram_id}
+        return self._get('/limit-factura', params=params)
+
+    def get_contracts(self, tg_user_id):
+        """
+        user uchun hamm shartnomalarni olish
 
         :param tg_user_id: Telegram foydalanuvchi identifikatori.
         :return: JSON javobi.
         """
         params = {'tg_user_id': tg_user_id}
-        return self._get('/limit-factura', params=params)
+        return self._get('/contracts', params=params)

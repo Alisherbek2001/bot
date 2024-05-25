@@ -1,4 +1,3 @@
-from src.handlers.schemas import FacturaLimitInfo
 from aiogram import Dispatcher, F, Router
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
@@ -11,7 +10,7 @@ from api import (get_order_accepted_api, get_order_id_api,
                  post_order_rejected_api)
 from src.filters.is_private import IsPrivateFilter
 from src.handlers.keyboards import faktura_document, order_document
-from src.handlers.schemas import OrderResponse
+from src.handlers.schemas import FacturaLimitInfo, OrderResponse
 from src.handlers.utils import (create_facture, create_full_facture,
                                 get_order_as_list)
 from src.services import LimitClient, OrderClient
@@ -257,18 +256,23 @@ async def get_document_orders(message: Message):
         faktura yaratish
     """
     telegram_id = message.from_user.id
-    jsondata = limit_client.get_factura_data(tg_user_id=telegram_id)
+    await message.answer('Boshlandi')
+    contracts = limit_client.get_contracts(telegram_id)
+
     product_response = order_client.get_product_prices(
         tg_user_id=telegram_id)
     price_data = {item['name']: {'price': item['price'],
                                  'measure': item['measure']} for item in product_response}
-    i = 0
-    for item in jsondata:
-        i += 1
-        data = FacturaLimitInfo.model_validate(item)
-        buf_file = create_full_facture(i, data, price_data)
-        await message.answer_document(buf_file, reply_markup=order_buttons)
 
+    total = len(contracts)
+    i = 0
+    for item in contracts:
+        i += 1
+        jsondata = limit_client.get_factura_data(item.get('id'), telegram_id)
+        data = FacturaLimitInfo.model_validate(jsondata)
+        buf_file = create_full_facture(i, data, price_data)
+        await message.answer_document(buf_file, reply_markup=order_buttons, caption=f"{i}/{total}")
+    await message.answer("tugadi")
 
 # by oxirida bo'lishi shart
 
