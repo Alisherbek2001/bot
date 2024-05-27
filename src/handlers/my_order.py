@@ -261,7 +261,7 @@ async def get_document_orders(message: Message, state: FSMContext):
 
 async def send_faktura(message: Message):
     telegram_id = message.from_user.id
-    telegram_id = 6924384720
+    # telegram_id = 6924384720
     contracts = limit_client.get_contracts(telegram_id)
 
     product_response = order_client.get_product_prices(
