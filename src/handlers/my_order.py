@@ -1,13 +1,18 @@
+import threading
+from asyncio import create_task, run, sleep
+
 from aiogram import Dispatcher, F, Router
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
+from fastapi import BackgroundTasks
 
 from api import (get_order_accepted_api, get_order_id_api,
                  get_order_inprogress_api, get_order_pending_api,
                  get_order_rejected_api, get_product_prices,
                  post_order_in_accepted_api, post_order_in_progress_api,
                  post_order_rejected_api)
+from src.config import CHANNEL_ID
 from src.filters.is_private import IsPrivateFilter
 from src.handlers.keyboards import faktura_document, order_document
 from src.handlers.schemas import FacturaLimitInfo, OrderResponse
@@ -130,7 +135,7 @@ async def new_orders(message: Message, state: FSMContext):
 @router.message(ActiveOrder.id)
 async def get_order_detail(message: Message, state: FSMContext):
     """
-        detail ko'rish 
+        detail ko'rish
     """
     if message.text == "🔙 Orqaga":
         await message.answer("Kerakli bo'limni tanlang !", reply_markup=order_buttons)
@@ -251,30 +256,37 @@ async def get_document_orders(message: Message, state: FSMContext):
         )
 
 
+# ------------------------------------
+
+
+async def send_faktura(message: Message):
+    telegram_id = message.from_user.id
+    telegram_id = 6924384720
+    contracts = limit_client.get_contracts(telegram_id)
+
+    product_response = order_client.get_product_prices(
+        tg_user_id=telegram_id)
+    price_data = {item['name']: {'price': item['price'],
+                                 'measure': item['measure']} for item in product_response}
+
+    i = 0
+    for item in contracts:
+        i += 1
+        await sleep(1)
+        jsondata = limit_client.get_factura_data(item.get('id'), telegram_id)
+        data = FacturaLimitInfo.model_validate(jsondata)
+        dmttname = data.dmtt.name.replace('-', '')
+        buf_file = create_full_facture(i, data, price_data)
+        await message.bot.send_document(CHANNEL_ID, buf_file,  caption=f"#{dmttname}")
+
+
 @router.message(F.text == faktura_document)
 async def get_document_orders(message: Message):
     """
         faktura yaratish
     """
-    # telegram_id = message.from_user.id
-    # await message.answer('Boshlandi')
-    # contracts = limit_client.get_contracts(telegram_id)
-
-    # product_response = order_client.get_product_prices(
-    #     tg_user_id=telegram_id)
-    # price_data = {item['name']: {'price': item['price'],
-    #                              'measure': item['measure']} for item in product_response}
-
-    # total = len(contracts)
-    # i = 0
-    # for item in contracts:
-    #     i += 1
-    #     jsondata = limit_client.get_factura_data(item.get('id'), telegram_id)
-    #     data = FacturaLimitInfo.model_validate(jsondata)
-    #     buf_file = create_full_facture(i, data, price_data)
-    #     await message.answer_document(buf_file, reply_markup=order_buttons, caption=f"{i}/{total}")
-    # await message.answer("tugadi")
-    await message.answer("Bu feature vaqtincha ish faoliyatida emas")
+    create_task(send_faktura(message))
+    await message.answer("Yaratish jarayoni boshlandi")
 
 # by oxirida bo'lishi shart
 

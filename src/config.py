@@ -24,3 +24,6 @@ def load_config(path: str = None) -> Config:
             webhook_url=env.str("WEBHOOK_URL")
         )
     )
+
+
+CHANNEL_ID = -1002239200454
