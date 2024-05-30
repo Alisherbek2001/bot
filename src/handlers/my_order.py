@@ -248,7 +248,7 @@ async def get_document_orders(message: Message, state: FSMContext):
             order_id = order['id']
             response = order_client.get_order_by_id(order_id=order_id)
             data = OrderResponse.model_validate(response)
-            buffer_file = create_facture(order_id, data, price_data)
+            buffer_file = create_facture(data, price_data)
             await message.answer_document(buffer_file)
     else:
         await message.answer(
@@ -261,7 +261,6 @@ async def get_document_orders(message: Message, state: FSMContext):
 
 async def send_faktura(message: Message):
     telegram_id = message.from_user.id
-    # telegram_id = 6924384720
     contracts = limit_client.get_contracts(telegram_id)
 
     product_response = order_client.get_product_prices(

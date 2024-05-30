@@ -45,6 +45,7 @@ class OrderResponse(BaseModel):
     id: int
     dmtt: Optional[DmttInfo]
     company: Optional[CompanyInfo]
+    sequence_number: Optional[int]
     order_status: str
     datetime: Optional[datetime]
     items: List[OrderItemInfo]

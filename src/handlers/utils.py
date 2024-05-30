@@ -44,13 +44,13 @@ def format_phone(phone_number: str):
     return formatted_number
 
 
-def create_facture(order_id: int, data: OrderResponse, prices: Dict) -> BufferedInputFile:
+def create_facture(data: OrderResponse, prices: Dict) -> BufferedInputFile:
     """
         hisob faktura yaratadi
     """
     # Создание документа
     doc = Document()
-
+    order_id = data.sequence_number
     # Настройка шрифта по умолчанию
     style = doc.styles["Normal"]
     font = style.font
