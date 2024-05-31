@@ -42,10 +42,10 @@ order_buttons = ReplyKeyboardMarkup(
          KeyboardButton(text='🚛 Faol buyurtmalar')],
         [KeyboardButton(text='✅ Bajarilgan buyurtmalar'),
          KeyboardButton(text='🚫 Rad qilingan buyurtmalar')],
-        [KeyboardButton(text=order_document), KeyboardButton(
-            text=order_document_without_price),]
+        [KeyboardButton(text=order_document),
+         KeyboardButton(text=order_document_without_price)],
         [
-            KeyboardButton(text=faktura_document)],
+            KeyboardButton(text=faktura_document),],
         [KeyboardButton(text='⬅️ Orqaga')],
     ],
     resize_keyboard=True,

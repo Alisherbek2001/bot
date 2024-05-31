@@ -101,7 +101,7 @@ async def post_order_to_in_progress(message: Message, state: FSMContext):
             order_id=id, tg_user_id=telegram_id)
         if response.status_code == 200:
             await message.answer(
-                f"✅ Javobingiz qabul qilindi {response.text}",
+                f"✅ Javobingiz qabul qilindi",
                 reply_markup=order_buttons,
             )
             await state.clear()
@@ -258,7 +258,7 @@ async def get_document_orders(message: Message, state: FSMContext):
 
 
 @router.message(F.text == order_document_without_price)
-async def get_document_orders(message: Message, state: FSMContext):
+async def get_document_orders_without_price(message: Message, state: FSMContext):
     """
         yuk xati olish
     """
@@ -274,7 +274,7 @@ async def get_document_orders(message: Message, state: FSMContext):
             order_id = order['id']
             response = order_client.get_order_by_id(order_id=order_id)
             data = OrderResponse.model_validate(response)
-            buffer_file = create_facture(data, price_data)
+            buffer_file = create_facture_without_price(data, price_data)
             await message.answer_document(buffer_file)
     else:
         await message.answer(
