@@ -244,7 +244,8 @@ def create_facture_without_price(data: OrderResponse, prices: Dict) -> BufferedI
     doc.sections[0].right_margin = Inches(0.4)
     # header qismini qo'shsih
     header = doc.add_paragraph()
-    header.add_run("___.05.2024 sanadagi _____-sonli shartnomaga")
+    header.add_run(
+        f"___.{get_current_month()} sanadagi _____-sonli shartnomaga")
     header.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
     header.paragraph_format.space_after = Pt(0)
     header.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -412,6 +413,17 @@ def get_current_date():
     return formatted_date
 
 
+def get_current_month():
+    # Get the current date
+    current_date = datetime.today()
+
+    # Format the date
+    formatted_date = current_date.strftime("%m.%Y")
+
+    # Print the formatted date
+    return formatted_date
+
+
 def get_order_as_list(data, order_id):
     """
         retun order as list
@@ -463,7 +475,8 @@ def create_full_facture(order_id: int, data: FacturaLimitInfo, prices: Dict) -> 
     doc.sections[0].right_margin = Inches(0.4)
     # header qismini qo'shsih
     header = doc.add_paragraph()
-    header.add_run("___.05.2024 sanadagi _____-sonli shartnomaga")
+    header.add_run(
+        f"___.{get_current_month()} sanadagi _____-sonli shartnomaga")
     header.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
     header.paragraph_format.space_after = Pt(0)
     header.alignment = WD_ALIGN_PARAGRAPH.CENTER

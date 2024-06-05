@@ -4,3 +4,4 @@ uvicorn
 requests
 aiogram
 environs
+aiogram_dialog
