@@ -64,7 +64,8 @@ def create_facture(data: OrderResponse, prices: Dict) -> BufferedInputFile:
     doc.sections[0].right_margin = Inches(0.4)
     # header qismini qo'shsih
     header = doc.add_paragraph()
-    header.add_run("___.05.2024 sanadagi _____-sonli shartnomaga")
+    header.add_run(
+        f"___.{get_current_month()} sanadagi _____-sonli shartnomaga")
     header.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
     header.paragraph_format.space_after = Pt(0)
     header.alignment = WD_ALIGN_PARAGRAPH.CENTER
