@@ -1,6 +1,7 @@
 import threading
 from asyncio import create_task, run, sleep
 
+import requests
 from aiogram import Dispatcher, F, Router
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
@@ -15,7 +16,8 @@ from api import (get_order_accepted_api, get_order_id_api,
 from src.config import CHANNEL_ID
 from src.filters.is_private import IsPrivateFilter
 from src.handlers.keyboards import (faktura_document, order_document,
-                                    order_document_without_price)
+                                    order_document_without_price,
+                                    refresh_db_command)
 from src.handlers.schemas import FacturaLimitInfo, OrderResponse
 from src.handlers.utils import (create_facture, create_facture_without_price,
                                 create_full_facture, get_order_as_list)
@@ -238,3 +240,13 @@ async def post_order_to_acceted(message: Message, state: FSMContext):
 @router.message(F.text == "🔙 Orqaga")
 async def result(message: Message):
     await message.answer("Kerakli bo'limni tanlang", reply_markup=buttun1)
+
+
+@router.message(F.text == refresh_db_command)
+async def result(message: Message):
+    await message.answer("Qabul qilindi biroz kuting ...", reply_markup=order_buttons)
+    url = "http://api.mydmtt.uz/bot/limit-refresh"
+    params = {
+        "tg_user_id": message.from_user.id
+    }
+    requests.post(url, params=params)

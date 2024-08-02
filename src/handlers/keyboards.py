@@ -36,6 +36,7 @@ firm_buttons = ReplyKeyboardMarkup(
 order_document = "📃 Yuk xati"
 faktura_document = "📄 Faktura"
 order_document_without_price = "📃 Yuk xati(Narxsiz)"
+refresh_db_command = "🔄 Bazani yagilash"
 order_buttons = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text='🆕 Yangi buyurtmalar'),
@@ -44,8 +45,8 @@ order_buttons = ReplyKeyboardMarkup(
          KeyboardButton(text='🚫 Rad qilingan buyurtmalar')],
         [KeyboardButton(text=order_document),
          KeyboardButton(text=order_document_without_price)],
-        [
-            KeyboardButton(text=faktura_document),],
+        [KeyboardButton(text=faktura_document),],
+        [KeyboardButton(text=refresh_db_command),],
         [KeyboardButton(text='⬅️ Orqaga')],
     ],
     resize_keyboard=True,
