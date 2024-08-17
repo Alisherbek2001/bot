@@ -28,32 +28,17 @@ async def get_document_orders(message: Message, state: FSMContext):
         yuk xati olish
     """
     telegram_id = message.from_user.id
-    order_client.get_factura_doc(tg_user_id=telegram_id)
+    return order_client.get_factura_doc(tg_user_id=telegram_id)
 
 
 @router.message(F.text == order_document_without_price)
 async def get_document_orders_without_price(message: Message, state: FSMContext):
     """
-        yuk xati olish
+        yuk xati olish narxsiz
     """
     telegram_id = message.from_user.id
-    response = order_client.get_orders_in_progress(tg_user_id=telegram_id)
-    data = response
-    product_response = order_client.get_product_prices(
+    return order_client.get_factura_doc_without_price(
         tg_user_id=telegram_id)
-    price_data = {item['name']: {'price': item['price'],
-                                 'measure': item['measure']} for item in product_response}
-    if len(data) > 0:
-        for order in data:
-            order_id = order['id']
-            response = order_client.get_order_by_id(order_id=order_id)
-            data = OrderResponse.model_validate(response)
-            buffer_file = create_facture_without_price(data, price_data)
-            await message.answer_document(buffer_file)
-    else:
-        await message.answer(
-            "🙅🏻‍♂️ Sizda faol buyurtmalar yo'q", reply_markup=order_buttons
-        )
 
 
 # ------------------------------------
