@@ -149,7 +149,7 @@ class OrderClient(ApiClient):
         return self._get('/bot/orders/rejected/', params=params)
 
     def get_orders_in_progress(self, tg_user_id):
-        """
+        """F
         Jarayonda bo'lgan buyurtmalarni olish.
 
         :param tg_user_id: Telegram foydalanuvchi identifikatori.
@@ -167,6 +167,16 @@ class OrderClient(ApiClient):
         """
         params = {'tg_user_id': tg_user_id}
         return self._post('/bot/factura/', params=params)
+
+    def get_factura_doc_without_price(self, tg_user_id):
+        """
+        Jarayonda bo'lgan buyurtmalarni olish.
+
+        :param tg_user_id: Telegram foydalanuvchi identifikatori.
+        :return: JSON javobi.
+        """
+        params = {'tg_user_id': tg_user_id}
+        return self._post('/bot/factura-without-price/', params=params)
 
     def get_orders_pending(self, tg_user_id):
         """
