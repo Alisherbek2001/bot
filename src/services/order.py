@@ -26,7 +26,7 @@ class ApiClient:
         """
         response = requests.post(
             f"{self.base_url}{endpoint}", json=data, params=params)
-        response.raise_for_status()
+        
         return response.json()
 
     def _get(self, endpoint, params=None):
@@ -38,7 +38,7 @@ class ApiClient:
         :return: JSON javobi.
         """
         response = requests.get(f"{self.base_url}{endpoint}", params=params)
-        response.raise_for_status()
+        
         return response.json()
 
     def _delete(self, endpoint, params=None):
@@ -50,7 +50,7 @@ class ApiClient:
         :return: JSON javobi.
         """
         response = requests.delete(f"{self.base_url}{endpoint}", params=params)
-        response.raise_for_status()
+        
         return response.json()
 
 
