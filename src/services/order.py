@@ -150,6 +150,16 @@ class OrderClient(ApiClient):
         params = {'tg_user_id': tg_user_id}
         return self._get('/bot/orders/in-progress/', params=params)
 
+    def get_factura_doc(self, tg_user_id):
+        """
+        Jarayonda bo'lgan buyurtmalarni olish.
+
+        :param tg_user_id: Telegram foydalanuvchi identifikatori.
+        :return: JSON javobi.
+        """
+        params = {'tg_user_id': tg_user_id}
+        return self._get('/bot/factura/', params=params)
+
     def get_orders_pending(self, tg_user_id):
         """
         Kutayotgan buyurtmalarni olish.
