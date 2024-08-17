@@ -26,8 +26,10 @@ class ApiClient:
         """
         response = requests.post(
             f"{self.base_url}{endpoint}", json=data, params=params)
-        
-        return response.json()
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {}
 
     def _get(self, endpoint, params=None):
         """
@@ -38,8 +40,11 @@ class ApiClient:
         :return: JSON javobi.
         """
         response = requests.get(f"{self.base_url}{endpoint}", params=params)
-        
-        return response.json()
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {}
 
     def _delete(self, endpoint, params=None):
         """
@@ -50,8 +55,11 @@ class ApiClient:
         :return: JSON javobi.
         """
         response = requests.delete(f"{self.base_url}{endpoint}", params=params)
-        
-        return response.json()
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {}
 
 
 class CompanyClient(ApiClient):
