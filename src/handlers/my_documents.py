@@ -48,10 +48,8 @@ async def send_faktura(message: Message):
     telegram_id = message.from_user.id
     contracts = limit_client.get_contracts(telegram_id)
 
-    product_response = order_client.get_product_prices(
+    price_data = order_client.get_product_prices(
         tg_user_id=telegram_id)
-    price_data = {item['name']: {'price': item['price'],
-                                 'measure': item['measure']} for item in product_response}
 
     i = 0
     for item in contracts:
