@@ -54,7 +54,6 @@ async def send_faktura(message: Message):
     i = 0
     for item in contracts:
         i += 1
-        await sleep(1)
         jsondata = limit_client.get_factura_data(item.get('id'), telegram_id)
         data = FacturaLimitInfo.model_validate(jsondata)
         dmttname = data.dmtt.name.replace('-', '')
