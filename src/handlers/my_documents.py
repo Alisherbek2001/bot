@@ -46,20 +46,21 @@ async def get_document_orders_without_price(message: Message, state: FSMContext)
 
 async def send_faktura(message: Message):
     telegram_id = message.from_user.id
-    # telegram_id = 7324724016
+    # telegram_id = 6996405082
     contracts = limit_client.get_contracts(telegram_id)
 
     price_data = order_client.get_product_prices(
         tg_user_id=telegram_id)
 
     i = 0
+    count = len(contracts)
     for item in contracts:
         i += 1
         jsondata = limit_client.get_factura_data(item.get('id'), telegram_id)
         data = FacturaLimitInfo.model_validate(jsondata)
         dmttname = data.dmtt.name.replace('-', '')
         buf_file = create_full_facture(i, data, price_data)
-        await message.bot.send_document(CHANNEL_ID, buf_file,  caption=f"#{dmttname}")
+        await message.bot.send_document(CHANNEL_ID, buf_file,  caption=f"#{dmttname}\n{i}/{count}")
 
 
 @router.message(F.text == faktura_document)
@@ -67,5 +68,5 @@ async def get_document_orders(message: Message):
     """
         faktura yaratish
     """
-    create_task(send_faktura(message))
     await message.answer("Yaratish jarayoni boshlandi")
+    return await send_faktura(message) 
