@@ -5,3 +5,4 @@ requests
 aiogram
 environs
 aiogram_dialog
+sentry

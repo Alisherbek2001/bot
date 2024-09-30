@@ -43,7 +43,16 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
+sentry_sdk.init(
+    dsn="https://21e287dc04a89fe04ffbfc7db774bc46@o4507315900383232.ingest.de.sentry.io/4508042355933264",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for tracing.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 # Register middlewares
 dp.update.middleware(ConfigMiddleware(config))
 
