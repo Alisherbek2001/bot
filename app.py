@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 import logging
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 import uvicorn
 from aiogram import Bot, Dispatcher, F, Router, types
 from aiogram.filters.callback_data import CallbackData
