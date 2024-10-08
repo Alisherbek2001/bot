@@ -1,26 +1,18 @@
-import threading
-from asyncio import create_task, run, sleep
+
 
 import requests
 from aiogram import Dispatcher, F, Router
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
-from fastapi import BackgroundTasks
 
 from api import (get_order_accepted_api, get_order_id_api,
-                 get_order_inprogress_api, get_order_pending_api,
-                 get_order_rejected_api, get_product_prices,
+                 get_order_inprogress_api, get_order_rejected_api,
                  post_order_in_accepted_api, post_order_in_progress_api,
                  post_order_rejected_api)
-from src.config import CHANNEL_ID
 from src.filters.is_private import IsPrivateFilter
-from src.handlers.keyboards import (faktura_document, order_document,
-                                    order_document_without_price,
-                                    refresh_db_command)
-from src.handlers.schemas import FacturaLimitInfo, OrderResponse
-from src.handlers.utils import (create_facture, create_facture_without_price,
-                                create_full_facture, get_order_as_list)
+from src.handlers.keyboards import refresh_db_command
+from src.handlers.utils import get_order_as_list
 from src.services import LimitClient, OrderClient
 
 from .keyboards import (COMFIRM_BUTTON_NAME, buttun1,

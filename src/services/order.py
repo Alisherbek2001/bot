@@ -168,6 +168,16 @@ class OrderClient(ApiClient):
         params = {'tg_user_id': tg_user_id}
         return self._post('/bot/factura/', params=params)
 
+    def get_full_factura_doc(self, tg_user_id):
+        """
+        Jarayonda bo'lgan buyurtmalarni olish.
+
+        :param tg_user_id: Telegram foydalanuvchi identifikatori.
+        :return: JSON javobi.
+        """
+        params = {'tg_user_id': tg_user_id}
+        return self._post('/bot/full-factura/', params=params)
+
     def get_factura_doc_without_price(self, tg_user_id):
         """
         Jarayonda bo'lgan buyurtmalarni olish.
@@ -261,3 +271,4 @@ class LimitClient(ApiClient):
         """
         params = {'tg_user_id': tg_user_id}
         return self._get('/contracts', params=params)
+
