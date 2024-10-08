@@ -69,4 +69,4 @@ async def get_document_orders(message: Message):
         faktura yaratish
     """
     await message.answer("Yaratish jarayoni boshlandi")
-    return await send_faktura(message) 
+    await send_faktura(message)

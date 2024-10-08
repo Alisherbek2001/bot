@@ -36,7 +36,7 @@ dp = Dispatcher(storage=storage)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await bot.set_webhook(url=WEBHOOK_URL, drop_pending_updates=True)
+    await bot.set_webhook(url=WEBHOOK_URL)
 
     yield
     await bot.delete_webhook()
