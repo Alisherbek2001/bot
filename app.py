@@ -1,18 +1,17 @@
 import json
-from aiogram.client.bot import DefaultBotProperties
-from fastapi import Request
-from aiogram.fsm.context import FSMContext
 import logging
 from contextlib import asynccontextmanager
 
 import sentry_sdk
 import uvicorn
 from aiogram import Bot, Dispatcher, F, Router, types
+from aiogram.client.bot import DefaultBotProperties
 from aiogram.filters.callback_data import CallbackData
+from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from src import load_config
 from src.handlers import register_routes
@@ -37,7 +36,7 @@ dp = Dispatcher(storage=storage)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await bot.set_webhook(url=WEBHOOK_URL)
+    await bot.set_webhook(url=WEBHOOK_URL, drop_pending_updates=True)
 
     yield
     await bot.delete_webhook()
