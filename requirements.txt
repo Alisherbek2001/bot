@@ -5,4 +5,4 @@ requests
 aiogram
 environs
 aiogram_dialog
-sentry
+sentry-sdk
