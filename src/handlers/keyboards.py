@@ -1,4 +1,5 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
+                           KeyboardButton, ReplyKeyboardMarkup)
 
 contact_share_markup = ReplyKeyboardMarkup(
     keyboard=[
@@ -68,12 +69,46 @@ check_buttons_in_progress = ReplyKeyboardMarkup(
     resize_keyboard=True,
 )
 
+def get_in_progress_buttons(order_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="✅ Bajarildi",
+                    callback_data=f"mark_as_done_{order_id}"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔙 Orqaga",
+                    callback_data=f"back_in_progress_orders"
+                )
+            ]
+        ]
+    )
+
 COMFIRM_BUTTON_NAME = "Qabul qilish"
-confirm_buttons = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text=COMFIRM_BUTTON_NAME),
-         KeyboardButton(text='Rad etish')],
-        [KeyboardButton(text='🔙 Orqaga')],
-    ],
-    resize_keyboard=True,
-)
+
+
+def get_confirm_buttons(order_id: int) -> InlineKeyboardMarkup:
+    """Active zakazlarni olish uchun"""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="✅ Tasdiqlash",
+                    callback_data=f"confirm_order_{order_id}"
+                ),
+                InlineKeyboardButton(
+                    text="❌ Rad etish",
+                    callback_data=f"reject_order_{order_id}"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔙 Orqaga",
+                    callback_data=f"back_active_orders"
+                )
+            ]
+        ]
+    )

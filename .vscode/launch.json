@@ -8,11 +8,11 @@
             "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\manage.py",
+            "program": "uvicorn ${workspaceFolder}\\app:app",
             "args": [
-                "runserver"
+                "--reload"
             ],
-            "django": true
+            "fastapi": true
         },
         {
             "name": "Django: makemigrations",

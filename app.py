@@ -21,6 +21,8 @@ from src.middlewares.config import ConfigMiddleware
 router = Router()
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 config = load_config(".env")
 
@@ -36,13 +38,15 @@ dp = Dispatcher(storage=storage)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await bot.set_webhook(url=WEBHOOK_URL)
+    allowed_updates = ['message', 'callback_query']
+    await bot.set_webhook(url=WEBHOOK_URL,  allowed_updates=dp.resolve_used_update_types(),
+                          drop_pending_updates=True)
 
     yield
     await bot.delete_webhook()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, debug=True)
 sentry_sdk.init(
     dsn="https://21e287dc04a89fe04ffbfc7db774bc46@o4507315900383232.ingest.de.sentry.io/4508042355933264",
     # Set traces_sample_rate to 1.0 to capture 100%
@@ -61,9 +65,13 @@ register_routes(dp)
 
 
 @app.post(WEBHOOK_PATH)
-async def bot_webhook(update: dict):
-
-    telegram_update = types.Update(**update)
+async def bot_webhook(request: dict):
+    # data = await request.json()
+    telegram_update = types.Update(**request)
+    # logging.info("Received webhook", request)
+    # update = await request.json()
+    if telegram_update.callback_query:
+        print("callbach", telegram_update.callback_query.data)
     await dp.feed_update(bot=bot, update=telegram_update)
 
 

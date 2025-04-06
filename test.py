@@ -15,6 +15,7 @@ bot = Bot(token=Token)
 
 async def mm():
     await bot.send_message(468329312, 'salom')
+    
 
 asyncio.run(mm())
 # telegram_id = 6924384720
