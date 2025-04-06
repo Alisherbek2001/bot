@@ -201,13 +201,14 @@ async def post_order_to_acceted(callback_query: CallbackQuery):
     """
 
     telegram_id = callback_query.from_user.id
-
+    order_id = callback_query.data.split("_")[-1]
     response = post_order_in_accepted_api(
-        order_id=id, tg_user_id=telegram_id)
+        order_id=order_id, tg_user_id=telegram_id)
     if response.status_code == 200:
         await callback_query.answer(
             "✅ Javobingiz qabul qilindi", show_alert=True, reply_markup=order_buttons
         )
+        
     else:
         await callback_query.answer(
             f"Xatolik yuz berdi",
