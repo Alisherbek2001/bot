@@ -42,12 +42,11 @@ order_buttons = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text='🆕 Yangi buyurtmalar'),
          KeyboardButton(text='🚛 Faol buyurtmalar')],
-        [KeyboardButton(text='✅ Bajarilgan buyurtmalar'),
-         KeyboardButton(text='🚫 Rad qilingan buyurtmalar')],
+
         [KeyboardButton(text=order_document),
-         KeyboardButton(text=order_document_without_price)],
-        [KeyboardButton(text=faktura_document),],
-        [KeyboardButton(text=refresh_db_command),],
+         KeyboardButton(text=faktura_document),],
+
+
         [KeyboardButton(text='⬅️ Orqaga')],
     ],
     resize_keyboard=True,
@@ -69,6 +68,7 @@ check_buttons_in_progress = ReplyKeyboardMarkup(
     resize_keyboard=True,
 )
 
+
 def get_in_progress_buttons(order_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
@@ -86,6 +86,7 @@ def get_in_progress_buttons(order_id: int) -> InlineKeyboardMarkup:
             ]
         ]
     )
+
 
 COMFIRM_BUTTON_NAME = "Qabul qilish"
 
