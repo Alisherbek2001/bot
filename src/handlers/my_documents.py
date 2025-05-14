@@ -28,7 +28,7 @@ async def get_document_orders(message: Message, state: FSMContext):
     return order_client.get_factura_doc(tg_user_id=telegram_id)
 
 
-@router.message(F.text == order_document_without_price)
+# @router.message(F.text == order_document_without_price)
 async def get_document_orders_without_price(message: Message, state: FSMContext):
     """
         yuk xati olish narxsiz
@@ -36,9 +36,6 @@ async def get_document_orders_without_price(message: Message, state: FSMContext)
     telegram_id = message.from_user.id
     return order_client.get_factura_doc_without_price(
         tg_user_id=telegram_id)
-
-
-
 
 
 @router.message(F.text == faktura_document)
