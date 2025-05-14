@@ -23,7 +23,7 @@ config = load_config(".env")
 
 storage = MemoryStorage()
 
-bot = Bot(token=config.tg.token, parse_mode="HTML")
+bot = Bot(token=config.tg.token)
 dp = Dispatcher(storage=storage)
 
 # Register middlewares
