@@ -223,7 +223,7 @@ async def post_order_to_acceted(message: Message, state: FSMContext):
             )
         else:
             await message.answer(
-                f"Xatolik yuz berdi",
+                f"Xatolik yuz berdi {response.text}",
                 reply_markup=order_buttons,
             )
     await state.clear()
