@@ -93,6 +93,9 @@ async def post_order_to_in_progress(message: Message, state: FSMContext):
         id = state_data["id"]
         response = post_order_in_progress_api(
             order_id=id, tg_user_id=telegram_id)
+        await message.answer(
+            response.text
+        )
         if response.status_code == 200:
             await message.answer(
                 f"✅ Javobingiz qabul qilindi",
